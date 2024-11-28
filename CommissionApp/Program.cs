@@ -6,6 +6,8 @@ using CommissionApp.Data.Entities;
 using CommissionApp.Audit.InputToSqlAuditTxtFile;
 using CommissionApp.JsonFile.ImportCsvToSqlExportJsonFile;
 using CommissionApp.Data;
+using CommissionApp.Services;
+using CommissionApp.UserCommunication;
 
 var services = new ServiceCollection();
 
@@ -13,6 +15,8 @@ services.AddSingleton<IApp, App>();
 services.AddSingleton<ICsvReader, CsvReader>();
 services.AddSingleton<IJsonFileService<Customer>>(new JsonFileService<Customer>("Resources\\Files\\Customers.json"));
 services.AddSingleton<IJsonFileService<Car>>(new JsonFileService<Car>("Resources\\Files\\Cars.json"));
+services.AddSingleton<IUserCommunication, UserCommunication>();
+services.AddSingleton<IDbContextService, DbContextService>();
 services.AddDbContext<CommissionAppSQLDbContext>(options => options
 .UseSqlServer("Data Source=LAPTOP-8QEUHJMJ\\SQLEXPRESS;Initial Catalog=\"CarsStorage\";Integrated Security=True;Trust Server Certificate=True"));
 
