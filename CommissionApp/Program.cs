@@ -8,15 +8,20 @@ using CommissionApp.JsonFile.ImportCsvToSqlExportJsonFile;
 using CommissionApp.Data;
 using CommissionApp.Services;
 using CommissionApp.UserCommunication;
+using CommissionApp.Data.Repositories;
 
 var services = new ServiceCollection();
 
 services.AddSingleton<IApp, App>();
+services.AddSingleton<IAudit, JsonAudit>();
 services.AddSingleton<ICsvReader, CsvReader>();
 services.AddSingleton<IJsonFileService<Customer>>(new JsonFileService<Customer>("Resources\\Files\\Customers.json"));
 services.AddSingleton<IJsonFileService<Car>>(new JsonFileService<Car>("Resources\\Files\\Cars.json"));
+services.AddSingleton<IRepository<Customer>, ListRepository<Customer>>();
+services.AddSingleton<IRepository<Car>, ListRepository<Car>>();
 services.AddSingleton<IUserCommunication, UserCommunication>();
 services.AddSingleton<IDbContextService, DbContextService>();
+services.AddSingleton<IEventHandlerService, EventHandlerService>();
 services.AddDbContext<CommissionAppSQLDbContext>(options => options
 .UseSqlServer("Data Source=LAPTOP-8QEUHJMJ\\SQLEXPRESS;Initial Catalog=\"CarsStorage\";Integrated Security=True;Trust Server Certificate=True"));
 
@@ -25,7 +30,6 @@ var options = new DbContextOptionsBuilder<CommissionAppSQLDbContext>()
     .Options;
 
 using var dbContext = new CommissionAppSQLDbContext(options);
-
 try
 {
     if (dbContext.Database.CanConnect())

@@ -4,6 +4,7 @@ using CommissionApp.Data;
 using System.Xml.Linq;
 using CommissionApp.Components.CsvReader;
 using CommissionApp.JsonFile.ImportCsvToSqlExportJsonFile;
+using CommissionApp.Data.Repositories;
 
 namespace CommissionApp.Services
 {
@@ -14,24 +15,32 @@ namespace CommissionApp.Services
         private readonly IJsonFileService<Customer> _jsonCustomerService;
         private readonly IJsonFileService<Car> _jsonCarService;
         private readonly IAudit _auditRepository;
-
+        private readonly IRepository<Customer> _customersRepository;
+        private readonly IRepository<Car> _carsRepository;
+      
         public DbContextService
             (  CommissionAppSQLDbContext commissionAppSQLDbContext,
                ICsvReader csvReader,
                IJsonFileService<Customer> jsonCustomerService,
                IJsonFileService<Car> jsonCarService,
-               IAudit auditRepository
+               IAudit auditRepository,
+               IRepository<Customer> customerRepository,
+               IRepository<Car> carRepository
             )
         {
             _csvReader = csvReader;
             _jsonCustomerService = jsonCustomerService;
             _jsonCarService = jsonCarService;
             _auditRepository = auditRepository;
+            _customersRepository = customerRepository;
+            _carsRepository = carRepository;
             _commissionAppSQLDbContext = commissionAppSQLDbContext;
             _commissionAppSQLDbContext.Database.EnsureCreated();
         }
-        public bool AddCustomerToSQL()
+     
+        public bool AddCustomerToSQL(IRepository<Customer> customerRepository)
         {
+            
             string action = "Customer Added!";
             string itemData = "Customer added to SQL";
             var auditRepository = new JsonAudit($"{action}", $"{itemData}");
@@ -63,6 +72,9 @@ namespace CommissionApp.Services
                     Console.Write("the value is incorrect!  ");
                     price = Console.ReadLine();
                 }
+
+                _customersRepository.Add(new Customer { FirstName = firstname, LastName = lastname, Email = bool.Parse(email), Price = decimal.Parse(price) });
+                _customersRepository.Save();
 
                 _commissionAppSQLDbContext.Customers.Add(new Customer { FirstName = firstname, LastName = lastname, Email = bool.Parse(email), Price = decimal.Parse(price) });
                 _commissionAppSQLDbContext.SaveChanges();
@@ -109,7 +121,7 @@ namespace CommissionApp.Services
                 return false;
             }
         }
-        public bool AddCarToSQL()
+        public bool AddCarToSQL(IRepository<Car> carRepository)
         {
             string action = "Car Added!";
             string itemData = "Car added to SQL";
@@ -122,6 +134,8 @@ namespace CommissionApp.Services
             Console.Write("Enter car's price : ");
             var carprice = Console.ReadLine();
             decimal.TryParse(carprice, out decimal stringToFloat);
+            _carsRepository.Add(new Car { CarBrand = carbrand, CarModel = carmodel, CarPrice = decimal.Parse(carprice) });
+            _carsRepository.Save();
             _commissionAppSQLDbContext.Cars.Add(new Car { CarBrand = carbrand, CarModel = carmodel, CarPrice = decimal.Parse(carprice) });
             _commissionAppSQLDbContext.SaveChanges();
             auditRepository.AddEntryToFile();
@@ -618,7 +632,7 @@ namespace CommissionApp.Services
             {
                 Console.WriteLine($"An error occurred while reading cars from the database: {ex.Message}");
             }
-        }
+        }     
     }
 }
 

@@ -1,22 +1,69 @@
 ﻿using CommissionApp.Services;
 using CommissionApp.Audit.InputToSqlAuditTxtFile;
+using CommissionApp.Data.Entities;
+using CommissionApp.Data.Repositories;
 
 namespace CommissionApp.UserCommunication
 {
      public class UserCommunication:IUserCommunication
     {
         private readonly IDbContextService _dbContextService;
+        private readonly IRepository<Customer> _customersRepository;
+        private readonly IRepository<Car> _carsRepository;
+      
         public UserCommunication(
-             IDbContextService dbContextService          
+             IDbContextService dbContextService
+           ,IRepository<Customer> customerRepository,
+              IRepository<Car> carRepository
+      
             )
         {
             _dbContextService = dbContextService;
+           _customersRepository = customerRepository;
+          _carsRepository = carRepository;
+          
+        }
+        void TextColoring(ConsoleColor color, string text)
+        {
+            Console.ForegroundColor = color;
+            Console.WriteLine(text);
+            Console.ResetColor();
         }
         public void UseUserCommunication()
         {
             string action = "[System report: Error!]";
             string itemData = "[System report: Error!]";
             var auditRepository = new JsonAudit($"{action}", $"{itemData}");
+
+            void CustomerRepositoryOnItemAdded(object? sender, Customer e)
+            {
+                TextColoring(ConsoleColor.Red, $"Event: Customer {e.FirstName} added from repository => {sender?.GetType().Name}!");             
+                Console.ForegroundColor = ConsoleColor.Green;
+                AddAuditInfo(e, "CUSTOMER ADDED");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"Customer\n{e}\nadded successfully.\n");
+                Console.ResetColor();
+            }
+
+            void CarRepositoryOnItemAdded(object? sender, Car e)
+            {
+                TextColoring(ConsoleColor.Red, $"Event: Car {e.CarBrand} added from repository => {sender?.GetType().Name}!");
+                Console.ForegroundColor = ConsoleColor.Green;
+                AddAuditInfo(e, "CAR ADDED");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"Car\n{e}\nadded successfully.\n");
+                Console.ResetColor();
+            }
+            _carsRepository.ItemAdded += CarRepositoryOnItemAdded;
+            _customersRepository.ItemAdded += CustomerRepositoryOnItemAdded;
+
+            void AddAuditInfo<T>(T e, string info) where T : class, IEntity
+            {
+                using (var writer = File.AppendText((IRepository<IEntity>.auditFileName)))
+                {
+                    writer.WriteLine($"[{DateTime.UtcNow}]\t{info} :\n    [{e}]");
+                }
+            }
 
             string input;
             do
@@ -52,12 +99,12 @@ namespace CommissionApp.UserCommunication
                 {
                     case "1":
                         {
-                            _dbContextService.AddCustomerToSQL();
+                            _dbContextService.AddCustomerToSQL(_customersRepository);                       
                         }
                         break;
                     case "2":
-                        {
-                            _dbContextService.AddCarToSQL();
+                        {                       
+                            _dbContextService.AddCarToSQL(_carsRepository);                          
                         }
                         break;
                     case "3":

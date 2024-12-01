@@ -1,27 +1,31 @@
-﻿namespace CommissionApp.Services
+﻿using CommissionApp.Data.Entities;
+using CommissionApp.Data.Repositories;
+
+namespace CommissionApp.Services
 {
     public interface IDbContextService
     {
-        bool AddCustomerToSQL();
-        bool RemoveCustomerById();
-        bool AddCarToSQL();
-        bool RemoveCarById();
-        void DeleteAllCustomers();
+        bool AddCarToSQL(IRepository<Car> carRepository);
+        bool AddCustomerToSQL(IRepository<Customer> customerRepository);
+        void CarsMoreExpensiveThan();
+        void CreateXmL();
         void DeleteAllCars();
+        void DeleteAllCustomers();
+        void DisplayAffordableCarsGroupedByCustomers();
+        void ExportCarsGroupedByCustomersToXml();
+        void ExportCarsToXml();
+        void ExportToJsonFileSqlRepo();
+        void GroupCustomersWithCarsByPrice();
+        void InsertDataCustomersToSQLFromCsv();
+        void InsertDataToSQLFromCsv();
+        void LoadDataFromJsonFiles();
+        void OrderCarsByPrices();
         void ReadCarsFromDbSQL();
         void ReadCustomersFromDbSQL();
-        void WriteAllFromAuditFileToConsole();
+        bool RemoveCarById();
+        bool RemoveCustomerById();
         void TextColoring(ConsoleColor color, string text);
-        void InsertDataToSQLFromCsv();
-        void InsertDataCustomersToSQLFromCsv();
-        void GroupCustomersWithCarsByPrice();
-        void DisplayAffordableCarsGroupedByCustomers();
-        void CreateXmL();
-        void ExportCarsToXml();
-        void ExportCarsGroupedByCustomersToXml();
-        void LoadDataFromJsonFiles();
-        void ExportToJsonFileSqlRepo();
-        void OrderCarsByPrices();
-        void CarsMoreExpensiveThan();
+        void WriteAllFromAuditFileToConsole();
+
     }
 }
