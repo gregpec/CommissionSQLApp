@@ -1,4 +1,4 @@
-﻿namespace CommissionApp.JsonFile.ImportCsvToSqlExportJsonFile;
+﻿namespace CommissionApp.JsonFile.ExportCsvToJsonFile;
 public interface IJsonFileService<T>
 {
     List<T> LoadFromFile();

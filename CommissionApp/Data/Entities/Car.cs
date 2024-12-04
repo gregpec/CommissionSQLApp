@@ -8,6 +8,7 @@
         public Car()
         {
         }
+        public int Id { get; set; }
         public string? CarBrand { get; set; }
         public string? CarModel { get; set; }
         public decimal? CarPrice { get; set; }

@@ -1,7 +1,6 @@
 ﻿namespace CommissionApp.Data.Repositories
 {
     using CommissionApp.Data.Entities;
-    using Microsoft.EntityFrameworkCore;
     using System.Collections.Generic;
     using System.Text.Json;
 
@@ -13,7 +12,6 @@
         private readonly string path = $"{typeof(T).Name}_save.json";
 
         public event EventHandler<T>? ItemAdded;
-
         public event EventHandler<T>? ItemRemoved;
         public event EventHandler<T>? NewAuditEntry;
 
@@ -84,7 +82,6 @@
             }
             return _items;
         }
-
         public int GetListCount()
         {
             return _items.Count;

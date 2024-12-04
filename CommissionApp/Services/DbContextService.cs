@@ -17,9 +17,9 @@ namespace CommissionApp.Services
         private readonly IAudit _auditRepository;
         private readonly IRepository<Customer> _customersRepository;
         private readonly IRepository<Car> _carsRepository;
-      
+
         public DbContextService
-            (  CommissionAppSQLDbContext commissionAppSQLDbContext,
+            (CommissionAppSQLDbContext commissionAppSQLDbContext,
                ICsvReader csvReader,
                IJsonFileService<Customer> jsonCustomerService,
                IJsonFileService<Car> jsonCarService,
@@ -37,10 +37,10 @@ namespace CommissionApp.Services
             _commissionAppSQLDbContext = commissionAppSQLDbContext;
             _commissionAppSQLDbContext.Database.EnsureCreated();
         }
-     
+
         public bool AddCustomerToSQL(IRepository<Customer> customerRepository)
         {
-            
+
             string action = "Customer Added!";
             string itemData = "Customer added to SQL";
             var auditRepository = new JsonAudit($"{action}", $"{itemData}");
@@ -73,10 +73,14 @@ namespace CommissionApp.Services
                     price = Console.ReadLine();
                 }
 
-                _customersRepository.Add(new Customer { FirstName = firstname, LastName = lastname, Email = bool.Parse(email), Price = decimal.Parse(price) });
+                _customersRepository.Add(new Customer()
+                {
+                    FirstName = firstname,
+                    LastName = lastname,
+                    Email = bool.Parse(email),
+                    Price = decimal.Parse(price)
+                });
                 _customersRepository.Save();
-
-                _commissionAppSQLDbContext.Customers.Add(new Customer { FirstName = firstname, LastName = lastname, Email = bool.Parse(email), Price = decimal.Parse(price) });
                 _commissionAppSQLDbContext.SaveChanges();
                 auditRepository.AddEntryToFile();
                 auditRepository.SaveAuditFile();
@@ -87,40 +91,42 @@ namespace CommissionApp.Services
                 return false;
             }
         }
-        public bool RemoveCustomerById()
+
+        public void RemoveCustomerById(IRepository<Customer> customerRepository)
         {
-            string action = "Customer removed ";
-            string itemData = "Customer added to SQL";
+            string action = "Customer Removed!";
+            string itemData = "Customer removed from SQL";
             var auditRepository = new JsonAudit($"{action}", $"{itemData}");
-            Console.WriteLine("Removing Customer:");
-            Console.Write("Enter Customer ID to remove: ");
-            var idInput = Console.ReadLine();
-
-            if (int.TryParse(idInput, out int customerId))
+            bool isIdCorrect = true;
+            do
             {
-                var customer = _commissionAppSQLDbContext.Customers.Find(customerId);
-
-                if (customer != null)
+                Console.WriteLine($"\nEnter the ID of the person you want to remove from the database:\n(Press 'q' button + 'ENTER' button to quit and back to main menu)");
+                var input = Console.ReadLine();
+                if (input == "q")
                 {
-                    _commissionAppSQLDbContext.Customers.Remove(customer);
+                    break;
+                }
+                try
+                {
+                    isIdCorrect = int.TryParse(input, out int id);
+                    _customersRepository.Remove(_customersRepository.GetById(id));
+                    _customersRepository.Save();
+                    
+                }
+                catch (Exception exception)
+                {
+                    TextColoring(ConsoleColor.DarkRed, $"\nWarning! Exception catched:\n{exception.Message}\n");
+                    TextColoring(ConsoleColor.DarkRed, "This ID is not existing! Try again!\n\t(Tip: View the list from the main menu to check the ID of the person you want to remove from the database)\n");
+                }
+                finally
+                {
                     _commissionAppSQLDbContext.SaveChanges();
-                    Console.WriteLine($"Customer with ID {customerId} has been removed.");
                     auditRepository.AddEntryToFile();
                     auditRepository.SaveAuditFile();
-                    return true;
                 }
-                else
-                {
-                    Console.WriteLine($"Customer with ID {customerId} does not exist.");
-                    return false;
-                }
-            }
-            else
-            {
-                Console.WriteLine("Invalid ID entered. Please enter a numeric value.");
-                return false;
-            }
+            } while (false);
         }
+
         public bool AddCarToSQL(IRepository<Car> carRepository)
         {
             string action = "Car Added!";
@@ -134,58 +140,73 @@ namespace CommissionApp.Services
             Console.Write("Enter car's price : ");
             var carprice = Console.ReadLine();
             decimal.TryParse(carprice, out decimal stringToFloat);
-            _carsRepository.Add(new Car { CarBrand = carbrand, CarModel = carmodel, CarPrice = decimal.Parse(carprice) });
+            _carsRepository.Add(new Car { CarBrand = carbrand, CarModel = carmodel, CarPrice = decimal.Parse(carprice)});
             _carsRepository.Save();
-            _commissionAppSQLDbContext.Cars.Add(new Car { CarBrand = carbrand, CarModel = carmodel, CarPrice = decimal.Parse(carprice) });
-            _commissionAppSQLDbContext.SaveChanges();
             auditRepository.AddEntryToFile();
             auditRepository.SaveAuditFile();
             return true;
         }
-        public bool RemoveCarById()
+        public void WriteAllCustomersToConsole(IRepository<Customer> customerRepository)
         {
-            string action = "Car removed!";
-            string itemData = "Car removed from SQL";
-            var auditRepository = new JsonAudit($"{action}", $"{itemData}");
-            Console.WriteLine("Removing Customer:");
-            Console.Write("Enter Customer ID to remove: ");
-            var idInput = Console.ReadLine();
-
-            if (int.TryParse(idInput, out int carId))
+            var items = _customersRepository.GetAll();
+            foreach (var item in items)
             {
-                var car = _commissionAppSQLDbContext.Customers.Find(carId);
-
-                if (car != null)
-                {
-                    _commissionAppSQLDbContext.Customers.Remove(car);
-                    _commissionAppSQLDbContext.SaveChanges();
-                    Console.WriteLine($"Customer with ID {carId} has been removed.");
-                    auditRepository.AddEntryToFile();
-                    auditRepository.SaveAuditFile();
-                    return true;
-                }
-                else
-                {
-                    Console.WriteLine($"Customer with ID {carId} does not exist.");
-                    return false;
-                }
-            }
-            else
-            {
-                Console.WriteLine("Invalid ID entered. Please enter a numeric value.");
-                return false;
+                Console.WriteLine(item);
             }
         }
-        public void DeleteAllCustomers()
+        public void WriteAllCarsToConsole(IRepository<Car> carRepository)
+        {
+            var items = _carsRepository.GetAll();
+            foreach (var item in items)
+            {
+                Console.WriteLine(item);
+            }
+        }
+        public void RemoveCarById(IRepository<Car> carRepository)
+        {
+            string action = "Car Removed!";
+            string itemData = "Car removed from SQL by Car Repository";
+            var auditRepository = new JsonAudit($"{action}", $"{itemData}");
+            bool isIdCorrect = true;
+            do
+            {
+                Console.WriteLine($"\nEnter the ID of the person you want to remove from the database:\n(Press 'q' button + 'ENTER' button to quit and back to main menu)");
+                var input = Console.ReadLine();
+                if (input == "q")
+                {
+                    break;
+                }
+                try
+                {
+                    isIdCorrect = int.TryParse(input, out int id);
+                    _carsRepository.Remove(_carsRepository.GetById(id));
+                }
+                catch (Exception exception)
+                {
+                    TextColoring(ConsoleColor.DarkRed, $"\nWarning! Exception catched:\n{exception.Message}\n");
+                    TextColoring(ConsoleColor.DarkRed, "This ID is not existing! Try again!\n\t(Tip: View the list from the main menu to check the ID of the person you want to remove from the database)\n");
+                }
+                finally
+                {
+                    _carsRepository.Save();
+                    auditRepository.AddEntryToFile();
+                    auditRepository.SaveAuditFile();
+                }
+            } while (false);
+        }
+
+        public void DeleteAllCustomers(IRepository<Customer> customerRepository)
         {
             string action = "Delete all Customers!";
             string itemData = "Deleting all Customers!";
             var auditRepository = new JsonAudit($"{action}", $"{itemData}");
-            var allCustomers = _commissionAppSQLDbContext.Customers.ToList();
+            var allCustomers = _customersRepository.GetAll();
             if (allCustomers.Any())
             {
-                _commissionAppSQLDbContext.Customers.RemoveRange(allCustomers);
-                _commissionAppSQLDbContext.SaveChanges();
+                _customersRepository.RemoveAll();
+                _customersRepository.Save();
+                auditRepository.AddEntryToFile();
+                auditRepository.SaveAuditFile();
                 Console.WriteLine("All customers have been deleted successfully.");
             }
             else
@@ -193,16 +214,16 @@ namespace CommissionApp.Services
                 Console.WriteLine("No customers found in the database.");
             }
         }
-        public void DeleteAllCars()
+        public void DeleteAllCars(IRepository<Car> carRepository)
         {
             string action = "Deleting all Cars";
             string itemData = "Deleting all Cars!";
             var auditRepository = new JsonAudit($"{action}", $"{itemData}");
-            var allCars = _commissionAppSQLDbContext.Cars.ToList();
+            var allCars = _carsRepository.GetAll();
             if (allCars.Any())
             {
-                _commissionAppSQLDbContext.Cars.RemoveRange(allCars);
-                _commissionAppSQLDbContext.SaveChanges();
+                _carsRepository.RemoveAll();
+                _carsRepository.Save();
                 Console.WriteLine("All cars have been deleted successfully.");
             }
             else
@@ -210,61 +231,9 @@ namespace CommissionApp.Services
                 Console.WriteLine("No cars found in the database.");
             }
         }
-        public void ReadCarsFromDbSQL()
-        {
-            try
-            {
-                var cars = _commissionAppSQLDbContext
-                    .Cars.ToList();
-                if (cars.Any())
-                {
-                    Console.WriteLine("List of Cars from the Database:");
-                    foreach (var car in cars)
-                    {
-                        Console.WriteLine($"\tID: {car.Id} | Brand: {car.CarBrand} | Model: {car.CarModel} | Price: {car.CarPrice:C}");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("No cars found in the database.");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred while reading cars from the database: {ex.Message}");
-            }
-        }
-        public void ReadCustomersFromDbSQL()
-        {
-            try
-            {
-                var customers = _commissionAppSQLDbContext
-                    .Customers
-                    .ToList();
-
-                if (customers.Any())
-                {
-                    Console.WriteLine("List of Customers from the Database:");
-                    foreach (var customer in customers)
-                    {
-                        Console.WriteLine($"\tID: {customer.Id} | First Name: {customer.FirstName} | Last Name: {customer.LastName} | Premium Client: {customer.Email} | Price: {customer.Price:C}");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("No customers found in the database.");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred while reading customers from the database: {ex.Message}");
-            }
-        }
         public void WriteAllFromAuditFileToConsole()
         {
-            string action = "Write to Console";
-            string itemData = "Write";
-            var auditRepository = new JsonAudit($"{action}", $"{itemData}");
+            var auditRepository = new JsonAudit($"", $"");
             var items = auditRepository.ReadAuditFile();
             foreach (var item in items)
             {
@@ -276,10 +245,12 @@ namespace CommissionApp.Services
             Console.ForegroundColor = color;
             Console.WriteLine(text);
             Console.ResetColor();
-
         }
-        public void InsertDataToSQLFromCsv()
+        public void InsertDataCarsToSQLFromCsv(IRepository<Car> carRepository)
         {
+            string action = "Insert Data Cars to Repositorie and Sql from Csv";
+            string itemData = "insenrt data cars to Sql";
+            var auditRepository = new JsonAudit($"{action}", $"{itemData}");
             try
             {
                 var cars = _csvReader.ProcessCars("Resources\\Files\\Cars.csv");
@@ -294,8 +265,9 @@ namespace CommissionApp.Services
                 {
                     try
                     {
-                        _commissionAppSQLDbContext.Cars.Add(new Car()
+                        _carsRepository.Add(new Car()
                         {
+                            Id = car.Id,
                             CarBrand = car.CarBrand,
                             CarModel = car.CarModel,
                             CarPrice = car.CarPrice,
@@ -308,10 +280,9 @@ namespace CommissionApp.Services
                 }
                 try
                 {
-                    string action = "Insering data drom csv to sql";
-                    string itemData = "!";
-                    var auditRepository = new JsonAudit($"{action}", $"{itemData}");
-                    _commissionAppSQLDbContext.SaveChanges();
+                    _carsRepository.Save();
+                    auditRepository.AddEntryToFile();
+                    auditRepository.SaveAuditFile();
                     Console.WriteLine("Data successfully inserted into the database.");
                 }
                 catch (Exception ex)
@@ -328,8 +299,11 @@ namespace CommissionApp.Services
                 Console.WriteLine($"An unexpected error occurred: {ex.Message}");
             }
         }
-        public void InsertDataCustomersToSQLFromCsv()
+        public void InsertDataCustomersToSQLFromCsv(IRepository<Customer> customerRepository)
         {
+            string action = "Insering customers drom csv to sql";
+            string itemData = "!";
+            var auditRepository = new JsonAudit($"{action}", $"{itemData}");
             try
             {
                 var customers = _csvReader.ProcessCustomers("Resources\\Files\\Customers.csv");
@@ -344,13 +318,14 @@ namespace CommissionApp.Services
                 {
                     try
                     {
-                        _commissionAppSQLDbContext.Customers.Add(new Customer()
+                        _customersRepository.Add(new Customer()
                         {
+                            Id = customer.Id,
                             FirstName = customer.FirstName,
                             LastName = customer.LastName,
                             Email = customer.Email,
                             Price = customer.Price,
-                        });
+                        }); 
                     }
                     catch (Exception ex)
                     {
@@ -359,10 +334,10 @@ namespace CommissionApp.Services
                 }
                 try
                 {
-                    string action = "Insering customers drom csv to sql";
-                    string itemData = "!";
-                    var auditRepository = new JsonAudit($"{action}", $"{itemData}");
-                    _commissionAppSQLDbContext.SaveChanges();
+
+                    _customersRepository.Save();
+                    auditRepository.AddEntryToFile();
+                    auditRepository.SaveAuditFile();
                     Console.WriteLine("Data successfully inserted into the database.");
                 }
                 catch (Exception ex)
@@ -379,11 +354,14 @@ namespace CommissionApp.Services
                 Console.WriteLine($"An unexpected error occurred: {ex.Message}");
             }
         }
-        public void GroupCustomersWithCarsByPrice()
+        public void GroupCustomersWithCarsByPrice(IRepository<Customer> customerRepository, IRepository<Car> carRepository)
         {
-            var groupedData = _commissionAppSQLDbContext.Customers
+            string action = "GroupCustomersWithCarsByPrice";
+            string itemData = "!";
+            var auditRepository = new JsonAudit($"{action}", $"{itemData}");
+            var groupedData = _customersRepository.GetAll()
                 .Join(
-                    _commissionAppSQLDbContext.Cars,
+                   _carsRepository.GetAll(),
                     customer => customer.Price,
                     car => car.CarPrice,
                     (customer, car) => new
@@ -405,14 +383,19 @@ namespace CommissionApp.Services
                     Console.WriteLine($"\tCar: {entry.Car.CarBrand} {entry.Car.CarModel}, Price: {entry.Car.CarPrice}");
                 }
             }
+            auditRepository.AddEntryToFile();
+            auditRepository.SaveAuditFile();
         }
-        public void DisplayAffordableCarsGroupedByCustomers()
+        public void DisplayAffordableCarsGroupedByCustomers(IRepository<Customer> customerRepository, IRepository<Car> carRepository)
         {
-            var groupedData = _commissionAppSQLDbContext.Customers
+            string action = "DisplayAffordableCarsGroupedByCustomers";
+            string itemData = "!";
+            var auditRepository = new JsonAudit($"{action}", $"{itemData}");
+            var groupedData = _customersRepository.GetAll()
                 .Select(customer => new
                 {
                     Customer = customer,
-                    AffordableCars = _commissionAppSQLDbContext.Cars
+                    AffordableCars = _carsRepository.GetAll()
                         .Where(car => car.CarPrice <= customer.Price)
                         .OrderBy(car => car.CarPrice)
                         .ToList()
@@ -430,25 +413,30 @@ namespace CommissionApp.Services
                     Console.WriteLine($"\tCar: {car.CarBrand} {car.CarModel}, Price: {car.CarPrice}");
                 }
             }
+            auditRepository.AddEntryToFile();
+            auditRepository.SaveAuditFile();
         }
-        public void CreateXmL()
+        //public void CreateXmL()
+        //{
+        //    var records = _csvReader.ProcessCars("Resources\\Files\\Cars.csv");
+        //    var document = new XDocument();
+        //    var cars = new XElement("Cars", records
+        //        .Select(x =>
+        //        new XElement("Car",
+        //            new XAttribute("CarBrand", x.CarBrand),
+        //             new XAttribute("CarName", x.CarModel),
+        //              new XAttribute("CarPrice", x.CarPrice))));
+        //    document.Add(cars);
+        //    _auditRepository.AddEntryToFile();
+        //    _auditRepository.SaveAuditFile();
+        //    document.Save("Cars.xml");
+        //}
+        public void ExportCarsToXml(IRepository<Car> carRepository)
         {
-            var records = _csvReader.ProcessCars("Resources\\Files\\Cars.csv");
-            var document = new XDocument();
-            var cars = new XElement("Cars", records
-                .Select(x =>
-                new XElement("Car",
-                    new XAttribute("CarBrand", x.CarBrand),
-                     new XAttribute("CarName", x.CarModel),
-                      new XAttribute("CarPrice", x.CarPrice))));
-            document.Add(cars);
-            _auditRepository.AddEntryToFile();
-            _auditRepository.SaveAuditFile();
-            document.Save("Cars.xml");
-        }
-        public void ExportCarsToXml()
-        {
-            var cars = _commissionAppSQLDbContext.Cars
+            string action = "ExportCarsToXml";
+            string itemData = "!";
+            var auditRepository = new JsonAudit($"{action}", $"{itemData}");
+            var cars = _carsRepository.GetAll()
                 .Select(car => new
                 {
                     car.CarBrand,
@@ -468,18 +456,21 @@ namespace CommissionApp.Services
                     )
                 )
             );
-            _auditRepository.AddEntryToFile();
-            _auditRepository.SaveAuditFile();
             document.Save("Cars.xml");
+            auditRepository.AddEntryToFile();
+            auditRepository.SaveAuditFile();
             Console.WriteLine("Data has been successfully exported to Cars.xml.");
         }
-        public void ExportCarsGroupedByCustomersToXml()
+        public void ExportCarsGroupedByCustomersToXml(IRepository<Customer> customerRepository, IRepository<Car> carRepository)
         {
-            var groupedData = _commissionAppSQLDbContext.Customers
+            string action = "ExportCarsGroupedByCustomersToXml";
+            string itemData = "!";
+            var auditRepository = new JsonAudit($"{action}", $"{itemData}");
+            var groupedData = _customersRepository.GetAll()
                 .Select(customer => new
                 {
                     Customer = customer,
-                    AffordableCars = _commissionAppSQLDbContext.Cars
+                    AffordableCars = _carsRepository.GetAll()
                         .Where(car => car.CarPrice <= customer.Price)
                         .OrderBy(car => car.CarPrice)
                         .ToList()
@@ -508,6 +499,8 @@ namespace CommissionApp.Services
                     )
                 )
             );
+            auditRepository.AddEntryToFile();
+            auditRepository.SaveAuditFile();
             document.Save("CarsByCustomers.xml");
             Console.WriteLine("Data has been successfully exported to CarsByCustomers.xml.");
         }
@@ -516,8 +509,8 @@ namespace CommissionApp.Services
             string action = "Load data from jsom to console";
             string itemData = "!";
             var auditRepository = new JsonAudit($"{action}", $"{itemData}");
-            _auditRepository.AddEntryToFile();
-            _auditRepository.SaveAuditFile();
+            auditRepository.AddEntryToFile();
+            auditRepository.SaveAuditFile();
             var customerFromFile = _jsonCustomerService.LoadFromFile();
             var carFromFile = _jsonCarService.LoadFromFile();
 
@@ -579,13 +572,12 @@ namespace CommissionApp.Services
                 Console.WriteLine($"{car}");
             }
         }
-        public void OrderCarsByPrices()
+        public void OrderCarsByPrices(IRepository<Car> carRepository)
         {
             Console.WriteLine("Order data cars by prices SQL ");
             try
             {
-                var cars = _commissionAppSQLDbContext
-                .Cars
+                var cars = _carsRepository.GetAll()
                 .OrderByDescending(car => car.CarPrice)
                 .ToList();
 
@@ -607,12 +599,11 @@ namespace CommissionApp.Services
                 Console.WriteLine($"An error occurred while reading cars from the database: {ex.Message}");
             }
         }
-        public void CarsMoreExpensiveThan()
+        public void CarsMoreExpensiveThan(IRepository<Car> carRepository)
         {
             try
             {
-                var cars = _commissionAppSQLDbContext
-              .Cars
+                var cars = _carsRepository.GetAll()
                             .Where(car => car.CarPrice > 500000)
                             .ToList();
                 if (cars.Any())
@@ -632,7 +623,7 @@ namespace CommissionApp.Services
             {
                 Console.WriteLine($"An error occurred while reading cars from the database: {ex.Message}");
             }
-        }     
+        }
     }
 }
 

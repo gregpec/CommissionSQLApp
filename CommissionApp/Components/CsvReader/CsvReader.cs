@@ -6,7 +6,6 @@ public class CsvReader : ICsvReader
 {
     public List<Car> ProcessCars(string filePath)
     {
-
         if (!File.Exists(filePath))
         {
             return new List<Car>();

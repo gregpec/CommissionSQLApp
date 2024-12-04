@@ -2,12 +2,17 @@
 {
     public class Customer : EntityBase
     {
-        public Customer(string firstname, string lastname, string email, string price)
-        {
+        public Customer(string firstname, string lastname, bool email, decimal price)
+        {          
+            FirstName=firstname;
+            LastName=lastname;
+            Email = email;
+            Price = price;
         }
         public Customer()
         {
         }
+        public int Id { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public bool? Email { get; set; }

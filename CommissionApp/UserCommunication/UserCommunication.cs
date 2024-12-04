@@ -2,69 +2,35 @@
 using CommissionApp.Audit.InputToSqlAuditTxtFile;
 using CommissionApp.Data.Entities;
 using CommissionApp.Data.Repositories;
+using System.Numerics;
 
 namespace CommissionApp.UserCommunication
 {
      public class UserCommunication:IUserCommunication
     {
         private readonly IDbContextService _dbContextService;
+        private readonly IEventHandlerService _eventHandlerService;
         private readonly IRepository<Customer> _customersRepository;
         private readonly IRepository<Car> _carsRepository;
       
         public UserCommunication(
-             IDbContextService dbContextService
-           ,IRepository<Customer> customerRepository,
-              IRepository<Car> carRepository
-      
-            )
+                                IDbContextService dbContextService,
+                                IRepository<Customer> customerRepository,
+                                IRepository<Car> carRepository,
+                                IEventHandlerService eventHandlerService    
+                                )
         {
             _dbContextService = dbContextService;
            _customersRepository = customerRepository;
-          _carsRepository = carRepository;
+            _carsRepository = carRepository;
+            _eventHandlerService= eventHandlerService;
           
         }
-        void TextColoring(ConsoleColor color, string text)
-        {
-            Console.ForegroundColor = color;
-            Console.WriteLine(text);
-            Console.ResetColor();
-        }
+       
         public void UseUserCommunication()
         {
-            string action = "[System report: Error!]";
-            string itemData = "[System report: Error!]";
-            var auditRepository = new JsonAudit($"{action}", $"{itemData}");
-
-            void CustomerRepositoryOnItemAdded(object? sender, Customer e)
-            {
-                TextColoring(ConsoleColor.Red, $"Event: Customer {e.FirstName} added from repository => {sender?.GetType().Name}!");             
-                Console.ForegroundColor = ConsoleColor.Green;
-                AddAuditInfo(e, "CUSTOMER ADDED");
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"Customer\n{e}\nadded successfully.\n");
-                Console.ResetColor();
-            }
-
-            void CarRepositoryOnItemAdded(object? sender, Car e)
-            {
-                TextColoring(ConsoleColor.Red, $"Event: Car {e.CarBrand} added from repository => {sender?.GetType().Name}!");
-                Console.ForegroundColor = ConsoleColor.Green;
-                AddAuditInfo(e, "CAR ADDED");
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"Car\n{e}\nadded successfully.\n");
-                Console.ResetColor();
-            }
-            _carsRepository.ItemAdded += CarRepositoryOnItemAdded;
-            _customersRepository.ItemAdded += CustomerRepositoryOnItemAdded;
-
-            void AddAuditInfo<T>(T e, string info) where T : class, IEntity
-            {
-                using (var writer = File.AppendText((IRepository<IEntity>.auditFileName)))
-                {
-                    writer.WriteLine($"[{DateTime.UtcNow}]\t{info} :\n    [{e}]");
-                }
-            }
-
+            _eventHandlerService.Events();
+           
             string input;
             do
             {
@@ -109,51 +75,59 @@ namespace CommissionApp.UserCommunication
                         break;
                     case "3":
                         {
-                            _dbContextService.ReadCustomersFromDbSQL();
+                            _dbContextService.WriteAllCustomersToConsole(_customersRepository);
+                            //_dbContextService.ReadCustomersFromDbSQL(_customersRepository);
+                           // _dbContextService.ReadCustomersFromDbSQL();
                         }
                         break;
                     case "4":
                         {
-                            _dbContextService.ReadCarsFromDbSQL();
+                            _dbContextService.WriteAllCarsToConsole(_carsRepository);
+                          //  _dbContextService.ReadCarsFromDbSQL();
+
+
                         }
                         break;
                     case "5":
-                        {
+                        {                           
                             Console.WriteLine("Cars List:");
-                            _dbContextService.ReadCustomersFromDbSQL();
+                            _dbContextService.WriteAllCustomersToConsole(_customersRepository);
+                           // _dbContextService.ReadCustomersFromDbSQL();
                             Console.WriteLine("Customers List:");
-                            _dbContextService.ReadCarsFromDbSQL();
+                            _dbContextService.WriteAllCarsToConsole(_carsRepository);
+                            //_dbContextService.WriteAllToConsole(_customersRepository);
                         }
                         break;
                     case "6":
                         {
                             _dbContextService.TextColoring(ConsoleColor.DarkGreen, "\n- - Removing an customers - -");
-                            _dbContextService.DeleteAllCustomers();
+                            _dbContextService.DeleteAllCustomers(_customersRepository);
                         }
                         break;
                     case "7":
                         {
                             _dbContextService.TextColoring(ConsoleColor.DarkGreen, "\n- - Removing an cars - -");
-                            _dbContextService.DeleteAllCars();
+                            _dbContextService.DeleteAllCars(_carsRepository);
                         }
                         break;
                     case "8":
                         {
                             _dbContextService.TextColoring(ConsoleColor.DarkGreen, "\n- - Removing an customers and cars - -");
-                            _dbContextService.DeleteAllCustomers();
-                            _dbContextService.DeleteAllCars();
+                            _dbContextService.DeleteAllCustomers(_customersRepository);
+                            _dbContextService.DeleteAllCars(_carsRepository);
                         }
                         break;
                     case "9":
                         {
                             _dbContextService.TextColoring(ConsoleColor.DarkGreen, "\n- - Removing an customer - -");
-                            _dbContextService.RemoveCustomerById();
+                            _dbContextService.RemoveCustomerById(_customersRepository);
+
                         }
                         break;
                     case "10":
                         {
                             _dbContextService.TextColoring(ConsoleColor.DarkGreen, "\n- - Removing an car - -");
-                            _dbContextService.RemoveCarById();
+                            _dbContextService.RemoveCarById(_carsRepository);
                         }
                         break;
                     case "11":
@@ -165,14 +139,14 @@ namespace CommissionApp.UserCommunication
                         {
                             Console.WriteLine("Imort Data Car From file.csv to Sql by method: InsertDataToSQLFromCsv:");
                             Console.WriteLine("Creating Audit File: Car.TXT:");
-                            _dbContextService.InsertDataToSQLFromCsv();
+                            _dbContextService.InsertDataCarsToSQLFromCsv(_carsRepository);
                         }
                         break;
                     case "13":
                         {
                             Console.WriteLine("Import Data Customer from File Csv to Sql 13:");
                             Console.WriteLine("Creating Audit File: Customer.TXT:");
-                            _dbContextService.InsertDataCustomersToSQLFromCsv();
+                            _dbContextService.InsertDataCustomersToSQLFromCsv(_customersRepository);
                         }
                         break;
                     case "14":
@@ -189,38 +163,38 @@ namespace CommissionApp.UserCommunication
                         break;
                     case "16":
                         {
-                            _dbContextService.OrderCarsByPrices();
+                            _dbContextService.OrderCarsByPrices(_carsRepository);
                         }
                         break;
                     case "17":
                         {
                             Console.WriteLine("Cars more expensive than 500.000 SQL ");
-                            _dbContextService.CarsMoreExpensiveThan();
+                            _dbContextService.CarsMoreExpensiveThan(_carsRepository);
                         }
                         break;
                     case "18":
                         {
                             Console.WriteLine("18. Customers and the cars they can buy at the given price ");
-                            _dbContextService.GroupCustomersWithCarsByPrice();
+                            _dbContextService.GroupCustomersWithCarsByPrice(_customersRepository, _carsRepository);
 
                         }
                         break;
                     case "19":
                         {
                             Console.WriteLine("19. Cars that a customer can buy based on his Customer Price ");
-                            _dbContextService.DisplayAffordableCarsGroupedByCustomers();
+                            _dbContextService.DisplayAffordableCarsGroupedByCustomers(_customersRepository,_carsRepository);
 
                         }
                         break;
                     case "20":
                         {
-                            _dbContextService.ExportCarsGroupedByCustomersToXml();
+                            _dbContextService.ExportCarsGroupedByCustomersToXml(_customersRepository, _carsRepository);
                         }
                         break;
                     case "21":
                         {
-                            _dbContextService.ExportCarsToXml();
-                            _dbContextService.CreateXmL();
+                            _dbContextService.ExportCarsToXml(_carsRepository);
+                           //_dbContextService.CreateXmL();
                         }
                         break;
                     default:

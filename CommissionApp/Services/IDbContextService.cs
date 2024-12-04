@@ -7,25 +7,24 @@ namespace CommissionApp.Services
     {
         bool AddCarToSQL(IRepository<Car> carRepository);
         bool AddCustomerToSQL(IRepository<Customer> customerRepository);
-        void CarsMoreExpensiveThan();
-        void CreateXmL();
-        void DeleteAllCars();
-        void DeleteAllCustomers();
-        void DisplayAffordableCarsGroupedByCustomers();
-        void ExportCarsGroupedByCustomersToXml();
-        void ExportCarsToXml();
+        void WriteAllCarsToConsole(IRepository<Car> carRepository);
+        void CarsMoreExpensiveThan(IRepository<Car> carRepository);
+        void DeleteAllCars(IRepository<Car> carRepository);
+        void DeleteAllCustomers(IRepository<Customer> customerRepository);
+        void DisplayAffordableCarsGroupedByCustomers(IRepository<Customer> customerRepository, IRepository<Car> carRepository);
+        void ExportCarsGroupedByCustomersToXml(IRepository<Customer> customerRepository, IRepository<Car> carRepositor);
+        void ExportCarsToXml(IRepository<Car> carRepository);
         void ExportToJsonFileSqlRepo();
-        void GroupCustomersWithCarsByPrice();
-        void InsertDataCustomersToSQLFromCsv();
-        void InsertDataToSQLFromCsv();
+        void GroupCustomersWithCarsByPrice(IRepository<Customer> customerRepository, IRepository<Car> carRepository);
+        void InsertDataCustomersToSQLFromCsv(IRepository<Customer> customerRepository);
+        void InsertDataCarsToSQLFromCsv(IRepository<Car> customerRepository);
         void LoadDataFromJsonFiles();
-        void OrderCarsByPrices();
-        void ReadCarsFromDbSQL();
-        void ReadCustomersFromDbSQL();
-        bool RemoveCarById();
-        bool RemoveCustomerById();
+        void OrderCarsByPrices(IRepository<Car> carRepository);     
+        void RemoveCarById(IRepository<Car> carRepository);
+        void RemoveCustomerById(IRepository<Customer> customerRepository);
         void TextColoring(ConsoleColor color, string text);
         void WriteAllFromAuditFileToConsole();
+        void WriteAllCustomersToConsole(IRepository<Customer> customerRepository);
 
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace CommissionApp.JsonFile.ImportCsvToSqlExportJsonFile;
+namespace CommissionApp.JsonFile.ExportCsvToJsonFile;
 public class JsonFileService<T> : IJsonFileService<T>
 {
     private readonly string _filePath;

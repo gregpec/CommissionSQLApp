@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-namespace CommissionApp.Audit.InputToSqlAuditTxtFile;
+namespace CommissionApp.Audit.AuditJsonFile;
 public class JsonAudit : IAudit
 {
     public JsonAudit()
