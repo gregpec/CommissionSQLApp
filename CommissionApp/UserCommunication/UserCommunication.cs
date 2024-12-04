@@ -1,8 +1,6 @@
 ﻿using CommissionApp.Services;
-using CommissionApp.Audit.InputToSqlAuditTxtFile;
 using CommissionApp.Data.Entities;
 using CommissionApp.Data.Repositories;
-using System.Numerics;
 
 namespace CommissionApp.UserCommunication
 {
@@ -23,8 +21,7 @@ namespace CommissionApp.UserCommunication
             _dbContextService = dbContextService;
            _customersRepository = customerRepository;
             _carsRepository = carRepository;
-            _eventHandlerService= eventHandlerService;
-          
+            _eventHandlerService= eventHandlerService;         
         }
        
         public void UseUserCommunication()
@@ -46,14 +43,14 @@ namespace CommissionApp.UserCommunication
                 Console.WriteLine("8. Remove all customers and cars from SQL");
                 Console.WriteLine("9. Remove customer by Id");
                 Console.WriteLine("10. Remove car by Id");
-                Console.WriteLine("11. Display audit file");
+                Console.WriteLine("11. Display AuditFile.json file");
                 Console.WriteLine("12. Import data to SQL from file Cars.csv");
                 Console.WriteLine("13. Import data to SQL from file Customers.csv");
                 Console.WriteLine("14. Create file Customers.json and Car.json from Customers.csv and Car.csv");
                 Console.WriteLine("15. Load data from files Customers.json and Cars.json to SQL");
                 Console.WriteLine("16. Order data cars from SQL by prices ");
                 Console.WriteLine("17. Display cars more expensive than 500.000 SQL ");
-                Console.WriteLine("18. Didplay customers who can buy cars for the given price ");
+                Console.WriteLine("18. Display customers who can buy cars for the given price ");
                 Console.WriteLine("19. Cars that a customer can buy based on his price ");
                 Console.WriteLine("20. Export cars grouped by customers from SQL to file CarsByCustomers.xml ");
                 Console.WriteLine("21. Create file Cars.xmL from files Cars.csv");
@@ -75,27 +72,20 @@ namespace CommissionApp.UserCommunication
                         break;
                     case "3":
                         {
-                            _dbContextService.WriteAllCustomersToConsole(_customersRepository);
-                            //_dbContextService.ReadCustomersFromDbSQL(_customersRepository);
-                           // _dbContextService.ReadCustomersFromDbSQL();
+                            _dbContextService.WriteAllCustomersToConsole(_customersRepository);                         
                         }
                         break;
                     case "4":
                         {
-                            _dbContextService.WriteAllCarsToConsole(_carsRepository);
-                          //  _dbContextService.ReadCarsFromDbSQL();
-
-
+                            _dbContextService.WriteAllCarsToConsole(_carsRepository);                      
                         }
                         break;
                     case "5":
                         {                           
                             Console.WriteLine("Cars List:");
-                            _dbContextService.WriteAllCustomersToConsole(_customersRepository);
-                           // _dbContextService.ReadCustomersFromDbSQL();
+                            _dbContextService.WriteAllCustomersToConsole(_customersRepository);                          
                             Console.WriteLine("Customers List:");
-                            _dbContextService.WriteAllCarsToConsole(_carsRepository);
-                            //_dbContextService.WriteAllToConsole(_customersRepository);
+                            _dbContextService.WriteAllCarsToConsole(_carsRepository);                   
                         }
                         break;
                     case "6":
@@ -137,21 +127,20 @@ namespace CommissionApp.UserCommunication
                         break;
                     case "12":
                         {
-                            Console.WriteLine("Imort Data Car From file.csv to Sql by method: InsertDataToSQLFromCsv:");
-                            Console.WriteLine("Creating Audit File: Car.TXT:");
+                            Console.WriteLine("Import Data Car From file.csv to Sql:");
                             _dbContextService.InsertDataCarsToSQLFromCsv(_carsRepository);
                         }
                         break;
                     case "13":
                         {
-                            Console.WriteLine("Import Data Customer from File Csv to Sql 13:");
+                            Console.WriteLine("Import Data Customer from File Csv to Sql:");
                             Console.WriteLine("Creating Audit File: Customer.TXT:");
                             _dbContextService.InsertDataCustomersToSQLFromCsv(_customersRepository);
                         }
                         break;
                     case "14":
                         {
-                            Console.WriteLine("Creating file.json from Customer.CSV an Car.CSV 14:");
+                            Console.WriteLine("Creating file.json from Customer.CSV an Car.CSV:");
                             _dbContextService.ExportToJsonFileSqlRepo();
                         }
                         break;
@@ -183,7 +172,6 @@ namespace CommissionApp.UserCommunication
                         {
                             Console.WriteLine("19. Cars that a customer can buy based on his Customer Price ");
                             _dbContextService.DisplayAffordableCarsGroupedByCustomers(_customersRepository,_carsRepository);
-
                         }
                         break;
                     case "20":
@@ -193,8 +181,7 @@ namespace CommissionApp.UserCommunication
                         break;
                     case "21":
                         {
-                            _dbContextService.ExportCarsToXml(_carsRepository);
-                           //_dbContextService.CreateXmL();
+                            _dbContextService.ExportCarsToXml(_carsRepository);                        
                         }
                         break;
                     default:
