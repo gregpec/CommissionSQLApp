@@ -56,7 +56,17 @@ public class JsonAudit : IAudit
         Console.WriteLine(text);
         Console.ResetColor();
         Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.WriteLine("(Message from JsonAuditRepository)\n");
+        Console.WriteLine("(Message from Auditfile.json)\n");
         Console.ResetColor();
+    }
+
+    public void WriteAllFromAuditFileToConsole()
+    {
+        var auditRepository = new JsonAudit($"", $"");
+        var items = auditRepository.ReadAuditFile();
+        foreach (var item in items)
+        {
+            Console.WriteLine(item);
+        }
     }
 }

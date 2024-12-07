@@ -8,5 +8,6 @@
         List<string> ReadAuditFile();
         void AddEntryToFile();
         void SaveAuditFile();
+        void WriteAllFromAuditFileToConsole();
     }
 }

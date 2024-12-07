@@ -10,7 +10,7 @@ public class SqlRepository<T> : IRepository<T> where T : class, IEntity, new()
     private readonly CommissionAppSQLDbContext _commissionAppSQLDbContext;
     private readonly Action<T>? _itemAddedCallback;
     private int? lastUsedId = 1;
-    private readonly string path = $"{typeof(T).Name}_save.json";
+    //private readonly string path = $"{typeof(T).Name}_save.json";
     private readonly List<T> _items = new();
          public SqlRepository(CommissionAppSQLDbContext commissionAppSQLDbContext)
     {
@@ -65,27 +65,27 @@ public class SqlRepository<T> : IRepository<T> where T : class, IEntity, new()
     {
     _commissionAppSQLDbContext.SaveChanges();
     }
-    public void SaveToFile()
-        {
-        File.Delete(path);
-            var objectsSerialized = JsonSerializer.Serialize<IEnumerable<T>>(_dbSet);
-            File.WriteAllText(path, objectsSerialized);
-        }
+    //public void SaveToFile()
+    //    {
+    //   //File.Delete(path);
+    //        var objectsSerialized = JsonSerializer.Serialize<IEnumerable<T>>(_dbSet);
+    //        File.WriteAllText(path, objectsSerialized);
+    //    }
 
-        public IEnumerable<T> Read()
-        {
-            if (File.Exists(path))
-            {
-                var objectsSerialized = File.ReadAllText(path);
-                var deserializedObjects = JsonSerializer.Deserialize<IEnumerable<T>>(objectsSerialized);
-                if (deserializedObjects != null)
-                {
-                    foreach (var item in deserializedObjects)
-                    {
-                    _dbSet.Add(item);
-                    }
-                }
-            }
-            return _dbSet;
-        }
+        //public IEnumerable<T> Read()
+        //{
+        //    if (File.Exists(path))
+        //    {
+        //        var objectsSerialized = File.ReadAllText(path);
+        //        var deserializedObjects = JsonSerializer.Deserialize<IEnumerable<T>>(objectsSerialized);
+        //        if (deserializedObjects != null)
+        //        {
+        //            foreach (var item in deserializedObjects)
+        //            {
+        //            _dbSet.Add(item);
+        //            }
+        //        }
+        //    }
+        //    return _dbSet;
+        //}
 }

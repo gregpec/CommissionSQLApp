@@ -1,48 +1,36 @@
 ﻿using CommissionApp.Audit.AuditJsonFile;
 using CommissionApp.Data.Entities;
-using CommissionApp.Data;
 using System.Xml.Linq;
 using CommissionApp.Components.CsvReader;
-using CommissionApp.JsonFile.ExportCsvToJsonFile;
 using CommissionApp.Data.Repositories;
 
-namespace CommissionApp.Services
+namespace CommissionApp.Services.RepositoriesServices
 {
-    public class DbContextService : IDbContextService
+    public class RepositoriesService : IRepositoriesService
     {
-        private readonly CommissionAppSQLDbContext _commissionAppSQLDbContext;
         private readonly ICsvReader _csvReader;
-        private readonly IJsonFileService<Customer> _jsonCustomerService;
-        private readonly IJsonFileService<Car> _jsonCarService;
         private readonly IAudit _auditRepository;
         private readonly IRepository<Customer> _customersRepository;
         private readonly IRepository<Car> _carsRepository;
 
-        public DbContextService
-            (CommissionAppSQLDbContext commissionAppSQLDbContext,
+        public RepositoriesService
+            (
                ICsvReader csvReader,
-               IJsonFileService<Customer> jsonCustomerService,
-               IJsonFileService<Car> jsonCarService,
                IAudit auditRepository,
                IRepository<Customer> customerRepository,
                IRepository<Car> carRepository
             )
         {
             _csvReader = csvReader;
-            _jsonCustomerService = jsonCustomerService;
-            _jsonCarService = jsonCarService;
             _auditRepository = auditRepository;
             _customersRepository = customerRepository;
             _carsRepository = carRepository;
-            _commissionAppSQLDbContext = commissionAppSQLDbContext;
-            _commissionAppSQLDbContext.Database.EnsureCreated();
         }
 
         public bool AddCustomerToSQL(IRepository<Customer> customerRepository)
         {
-
             string action = "Customer Added!";
-            string itemData = "Customer added to SQL";
+            string itemData = "Customer Added to SQL";
             var auditRepository = new JsonAudit($"{action}", $"{itemData}");
             Console.WriteLine("Adding Customer :");
             Console.Write("Enter first name: ");
@@ -81,9 +69,8 @@ namespace CommissionApp.Services
                     Price = decimal.Parse(price)
                 });
                 _customersRepository.Save();
-                _commissionAppSQLDbContext.SaveChanges();
-                auditRepository.AddEntryToFile();
-                auditRepository.SaveAuditFile();
+                _auditRepository.AddEntryToFile();
+                _auditRepository.SaveAuditFile();
                 return true;
             }
             else
@@ -111,7 +98,7 @@ namespace CommissionApp.Services
                     isIdCorrect = int.TryParse(input, out int id);
                     _customersRepository.Remove(_customersRepository.GetById(id));
                     _customersRepository.Save();
-                    
+
                 }
                 catch (Exception exception)
                 {
@@ -120,7 +107,8 @@ namespace CommissionApp.Services
                 }
                 finally
                 {
-                    _commissionAppSQLDbContext.SaveChanges();
+                    //_commissionAppSQLDbContext.SaveChanges();
+                    _customersRepository.Save();
                     auditRepository.AddEntryToFile();
                     auditRepository.SaveAuditFile();
                 }
@@ -140,7 +128,7 @@ namespace CommissionApp.Services
             Console.Write("Enter car's price : ");
             var carprice = Console.ReadLine();
             decimal.TryParse(carprice, out decimal stringToFloat);
-            _carsRepository.Add(new Car { CarBrand = carbrand, CarModel = carmodel, CarPrice = decimal.Parse(carprice)});
+            _carsRepository.Add(new Car { CarBrand = carbrand, CarModel = carmodel, CarPrice = decimal.Parse(carprice) });
             _carsRepository.Save();
             auditRepository.AddEntryToFile();
             auditRepository.SaveAuditFile();
@@ -231,15 +219,7 @@ namespace CommissionApp.Services
                 Console.WriteLine("No cars found in the database.");
             }
         }
-        public void WriteAllFromAuditFileToConsole()
-        {
-            var auditRepository = new JsonAudit($"", $"");
-            var items = auditRepository.ReadAuditFile();
-            foreach (var item in items)
-            {
-                Console.WriteLine(item);
-            }
-        }
+       
         public void TextColoring(ConsoleColor color, string text)
         {
             Console.ForegroundColor = color;
@@ -325,7 +305,7 @@ namespace CommissionApp.Services
                             LastName = customer.LastName,
                             Email = customer.Email,
                             Price = customer.Price,
-                        }); 
+                        });
                     }
                     catch (Exception ex)
                     {
@@ -416,21 +396,7 @@ namespace CommissionApp.Services
             auditRepository.AddEntryToFile();
             auditRepository.SaveAuditFile();
         }
-        //public void CreateXmL()
-        //{
-        //    var records = _csvReader.ProcessCars("Resources\\Files\\Cars.csv");
-        //    var document = new XDocument();
-        //    var cars = new XElement("Cars", records
-        //        .Select(x =>
-        //        new XElement("Car",
-        //            new XAttribute("CarBrand", x.CarBrand),
-        //             new XAttribute("CarName", x.CarModel),
-        //              new XAttribute("CarPrice", x.CarPrice))));
-        //    document.Add(cars);
-        //    _auditRepository.AddEntryToFile();
-        //    _auditRepository.SaveAuditFile();
-        //    document.Save("Cars.xml");
-        //}
+
         public void ExportCarsToXml(IRepository<Car> carRepository)
         {
             string action = "ExportCarsToXml";
@@ -504,74 +470,8 @@ namespace CommissionApp.Services
             document.Save("CarsByCustomers.xml");
             Console.WriteLine("Data has been successfully exported to CarsByCustomers.xml.");
         }
-        public void LoadDataFromJsonFiles()
-        {
-            string action = "Load data from jsom to console";
-            string itemData = "!";
-            var auditRepository = new JsonAudit($"{action}", $"{itemData}");
-            auditRepository.AddEntryToFile();
-            auditRepository.SaveAuditFile();
-            var customerFromFile = _jsonCustomerService.LoadFromFile();
-            var carFromFile = _jsonCarService.LoadFromFile();
-
-            if (customerFromFile.Any())
-            {
-                foreach (var customer in customerFromFile)
-                {
-                    Console.WriteLine($"ID: {customer.Id}, FirstName: {customer.FirstName}, LastName: {customer.LastName}, Premium: {customer.Email}, Price: {customer.Price:C}");
-                }
-            }
-            else
-            {
-                Console.WriteLine("No files json");
-            }
-            if (carFromFile.Any())
-            {
-                foreach (var car in carFromFile)
-                {
-                    Console.WriteLine($"ID: {car.Id}, Brand: {car.CarBrand}, Model: {car.CarModel}, Price: {car.CarPrice:C}");
-                }
-            }
-            else
-            {
-                Console.WriteLine("No files json");
-            }
-        }
-        public void ExportToJsonFileSqlRepo()
-        {
-            string filePath = "Resources\\Files\\Customers.csv";
-            var customRecords = _csvReader.ProcessCustomers("Resources\\Files\\Customers.csv");
-            List<Customer> customers = _csvReader.ProcessCustomers(filePath);
-
-            foreach (var customer in customRecords)
-            {
-                string action = "Load data customers from csv sql";
-                string itemData = "!";
-                var auditRepository = new JsonAudit($"{action}", $"{itemData}");
-
-                Console.WriteLine($"Wypisanie lini{customer}");
-                _jsonCustomerService.SaveToFile(_commissionAppSQLDbContext.Customers);
-                auditRepository.AddEntryToFile();
-                auditRepository.SaveAuditFile();
-            }
-            string file = "Resources\\Files\\Cars.csv";
-            var records = _csvReader.ProcessCars("Resources\\Files\\Cars.csv");
-
-            List<Car> cars = _csvReader.ProcessCars(file);
-            foreach (var car in records)
-            {
-                string action = "Load data cars from csv sql";
-                string itemData = "!";
-                var auditRepository = new JsonAudit($"{action}", $"{itemData}");
-                auditRepository.AddEntryToFile();
-                auditRepository.SaveAuditFile();
-                _jsonCarService.SaveToFile(_commissionAppSQLDbContext.Cars);
-            }
-            foreach (var car in records)
-            {
-                Console.WriteLine($"{car}");
-            }
-        }
+       
+       
         public void OrderCarsByPrices(IRepository<Car> carRepository)
         {
             Console.WriteLine("Order data cars by prices SQL ");

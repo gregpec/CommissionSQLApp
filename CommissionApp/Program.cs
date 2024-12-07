@@ -4,11 +4,12 @@ using Microsoft.Extensions.DependencyInjection;
 using CommissionApp.Components.CsvReader;
 using CommissionApp.Data.Entities;
 using CommissionApp.Audit.AuditJsonFile;
-using CommissionApp.JsonFile.ExportCsvToJsonFile;
 using CommissionApp.Data;
-using CommissionApp.Services;
 using CommissionApp.UserCommunication;
 using CommissionApp.Data.Repositories;
+using CommissionApp.Services.RepositoriesServices;
+using CommissionApp.Services.FilesServices.JsonFile.ExportCsvToJsonFile;
+using CommissionApp.Services.FilesServices.JsonFile;
 
 var services = new ServiceCollection();
 
@@ -20,7 +21,8 @@ services.AddSingleton<IJsonFileService<Car>>(new JsonFileService<Car>("Resources
 services.AddSingleton<IRepository<Customer>, SqlRepository<Customer>>();
 services.AddSingleton<IRepository<Car>, SqlRepository<Car>>();
 services.AddSingleton<IUserCommunication, UserCommunication>();
-services.AddSingleton<IDbContextService, DbContextService>();
+services.AddSingleton<IJsonServices, JsonServices>();
+services.AddSingleton<IRepositoriesService, RepositoriesService>();
 services.AddSingleton<IEventHandlerService, EventHandlerService>();
 services.AddDbContext<CommissionAppSQLDbContext>(options => options
 .UseSqlServer("Data Source=LAPTOP-8QEUHJMJ\\SQLEXPRESS;Initial Catalog=\"CarsStorage\";Integrated Security=True;Trust Server Certificate=True"));

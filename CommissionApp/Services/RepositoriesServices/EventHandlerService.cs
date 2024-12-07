@@ -1,27 +1,31 @@
-﻿using CommissionApp.Audit.AuditJsonFile;
-using CommissionApp.Data.Entities;
+﻿using CommissionApp.Data.Entities;
 using CommissionApp.Data.Repositories;
 
-namespace CommissionApp.Services
+
+namespace CommissionApp.Services.RepositoriesServices
 {
-    public class EventHandlerService: IEventHandlerService
+    public class EventHandlerService : IEventHandlerService
     {
         private readonly IRepository<Customer> _customersRepository;
         private readonly IRepository<Car> _carsRepository;
-       
-        public EventHandlerService(IRepository<Customer> customerRepository, 
-                                   IRepository<Car> carRepository)
-                                          
-        { 
+      
+        public EventHandlerService(IRepository<Customer> customerRepository,
+                                   IRepository<Car> carRepository
+                                  )
+        {
             _customersRepository = customerRepository;
             _carsRepository = carRepository;     
         }
 
         public void Events()
         {
-            string action = "[System report: Error!]";
-            string itemData = "[System report: Error!]";
-            var auditRepository = new JsonAudit($"{action}", $"{itemData}");
+          
+            void TextColoring(ConsoleColor color, string text)
+            {
+                Console.ForegroundColor = color;
+                Console.WriteLine(text);
+                Console.ResetColor();
+            }
 
             void CustomerRepositoryOnItemAdded(object? sender, Customer e)
             {
@@ -29,7 +33,7 @@ namespace CommissionApp.Services
                 Console.ForegroundColor = ConsoleColor.Green;
                 AddAuditInfo(e, "CUSTOMER ADDED");
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"Customer\n{e}\nadded successfully.\n");
+                Console.WriteLine($"Customer\n{e}\nadded successfully to data sql repositories  and event inscribed to file: Resources\\\\Files\\\\Audit.txt\n");
                 Console.ResetColor();
             }
 
@@ -38,7 +42,7 @@ namespace CommissionApp.Services
                 TextColoring(ConsoleColor.Red, $"Event: Customer {e.FirstName} removed from repository => {sender?.GetType().Name}!");
                 AddAuditInfo(e, "CUSTOMER REMOVED");
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"Customer\n{e}\nremoved successfully.\n");
+                Console.WriteLine($"Customer\n{e}\nremoved successfully  and event inscribed to file: Resources\\Files\\Audit.txtn\n");
                 Console.ResetColor();
             }
 
@@ -48,7 +52,7 @@ namespace CommissionApp.Services
                 Console.ForegroundColor = ConsoleColor.Green;
                 AddAuditInfo(e, "CAR ADDED");
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"Car\n{e}\nadded successfully.\n");
+                Console.WriteLine($"Car\n{e}\nadded successfully to data sql repositories and event inscribed to file: Resources\\Files\\Audit.txt\n");
                 Console.ResetColor();
             }
             void CarRepositoryOnItemRemoved(object? sender, Car e)
@@ -56,7 +60,7 @@ namespace CommissionApp.Services
                 TextColoring(ConsoleColor.Red, $"Event: Car {e.CarBrand} removed from repository => {sender?.GetType().Name}!");
                 AddAuditInfo(e, "CAR REMOVED");
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"Car\n{e}\nremoved successfully.\n");
+                Console.WriteLine($"Car\n{e}\nremoved successfully  and event inscribed to file: Resources\\Files\\Audit.txt\n");
                 Console.ResetColor();
             }
             _carsRepository.ItemAdded += CarRepositoryOnItemAdded;
@@ -64,16 +68,9 @@ namespace CommissionApp.Services
             _customersRepository.ItemAdded += CustomerRepositoryOnItemAdded;
             _customersRepository.ItemRemoved += CustomerRepositoryOnItemRemoved;
 
-            void TextColoring(ConsoleColor color, string text)
-            {
-                Console.ForegroundColor = color;
-                Console.WriteLine(text);
-                Console.ResetColor();
-            }
-
             void AddAuditInfo<T>(T e, string info) where T : class, IEntity
             {
-                using (var writer = File.AppendText((IRepository<IEntity>.auditFileName)))
+                using (var writer = File.AppendText(IRepository<IEntity>.auditFileName))
                 {
                     writer.WriteLine($"[{DateTime.UtcNow}]\t{info} :\n    [{e}]");
                 }
