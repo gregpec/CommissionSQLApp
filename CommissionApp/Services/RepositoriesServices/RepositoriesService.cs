@@ -27,7 +27,7 @@ namespace CommissionApp.Services.RepositoriesServices
             _carsRepository = carRepository;
         }
 
-        public bool AddCustomerToSQL(IRepository<Customer> customerRepository)
+        public bool AddCustomerToSQL()
         {
             string action = "Customer Added!";
             string itemData = "Customer Added to SQL";
@@ -79,7 +79,7 @@ namespace CommissionApp.Services.RepositoriesServices
             }
         }
 
-        public void RemoveCustomerById(IRepository<Customer> customerRepository)
+        public void RemoveCustomerById()
         {
             string action = "Customer Removed!";
             string itemData = "Customer removed from SQL";
@@ -115,7 +115,7 @@ namespace CommissionApp.Services.RepositoriesServices
             } while (false);
         }
 
-        public bool AddCarToSQL(IRepository<Car> carRepository)
+        public bool AddCarToSQL()
         {
             string action = "Car Added!";
             string itemData = "Car added to SQL";
@@ -134,7 +134,7 @@ namespace CommissionApp.Services.RepositoriesServices
             auditRepository.SaveAuditFile();
             return true;
         }
-        public void WriteAllCustomersToConsole(IRepository<Customer> customerRepository)
+        public void WriteAllCustomersToConsole()
         {
             var items = _customersRepository.GetAll();
             foreach (var item in items)
@@ -142,7 +142,7 @@ namespace CommissionApp.Services.RepositoriesServices
                 Console.WriteLine(item);
             }
         }
-        public void WriteAllCarsToConsole(IRepository<Car> carRepository)
+        public void WriteAllCarsToConsole()
         {
             var items = _carsRepository.GetAll();
             foreach (var item in items)
@@ -150,7 +150,7 @@ namespace CommissionApp.Services.RepositoriesServices
                 Console.WriteLine(item);
             }
         }
-        public void RemoveCarById(IRepository<Car> carRepository)
+        public void RemoveCarById()
         {
             string action = "Car Removed!";
             string itemData = "Car removed from SQL by Car Repository";
@@ -183,7 +183,7 @@ namespace CommissionApp.Services.RepositoriesServices
             } while (false);
         }
 
-        public void DeleteAllCustomers(IRepository<Customer> customerRepository)
+        public void DeleteAllCustomers()
         {
             string action = "Delete all Customers!";
             string itemData = "Deleting all Customers!";
@@ -202,7 +202,7 @@ namespace CommissionApp.Services.RepositoriesServices
                 Console.WriteLine("No customers found in the database.");
             }
         }
-        public void DeleteAllCars(IRepository<Car> carRepository)
+        public void DeleteAllCars()
         {
             string action = "Deleting all Cars";
             string itemData = "Deleting all Cars!";
@@ -226,7 +226,7 @@ namespace CommissionApp.Services.RepositoriesServices
             Console.WriteLine(text);
             Console.ResetColor();
         }
-        public void InsertDataCarsToSQLFromCsv(IRepository<Car> carRepository)
+        public void InsertDataCarsToSQLFromCsv()
         {
             string action = "Insert Data Cars to Repositorie and Sql from Csv";
             string itemData = "insenrt data cars to Sql";
@@ -247,7 +247,7 @@ namespace CommissionApp.Services.RepositoriesServices
                     {
                         _carsRepository.Add(new Car()
                         {
-                            Id = car.Id,
+                          //  Id = car.Id,
                             CarBrand = car.CarBrand,
                             CarModel = car.CarModel,
                             CarPrice = car.CarPrice,
@@ -279,7 +279,7 @@ namespace CommissionApp.Services.RepositoriesServices
                 Console.WriteLine($"An unexpected error occurred: {ex.Message}");
             }
         }
-        public void InsertDataCustomersToSQLFromCsv(IRepository<Customer> customerRepository)
+        public void InsertDataCustomersToSQLFromCsv()
         {
             string action = "Insering customers drom csv to sql";
             string itemData = "!";
@@ -300,7 +300,7 @@ namespace CommissionApp.Services.RepositoriesServices
                     {
                         _customersRepository.Add(new Customer()
                         {
-                            Id = customer.Id,
+                            //Id = customer.Id,
                             FirstName = customer.FirstName,
                             LastName = customer.LastName,
                             Email = customer.Email,
@@ -334,7 +334,7 @@ namespace CommissionApp.Services.RepositoriesServices
                 Console.WriteLine($"An unexpected error occurred: {ex.Message}");
             }
         }
-        public void GroupCustomersWithCarsByPrice(IRepository<Customer> customerRepository, IRepository<Car> carRepository)
+        public void GroupCustomersWithCarsByPrice()
         {
             string action = "GroupCustomersWithCarsByPrice";
             string itemData = "!";
@@ -366,7 +366,7 @@ namespace CommissionApp.Services.RepositoriesServices
             auditRepository.AddEntryToFile();
             auditRepository.SaveAuditFile();
         }
-        public void DisplayAffordableCarsGroupedByCustomers(IRepository<Customer> customerRepository, IRepository<Car> carRepository)
+        public void DisplayAffordableCarsGroupedByCustomers()
         {
             string action = "DisplayAffordableCarsGroupedByCustomers";
             string itemData = "!";
@@ -397,7 +397,7 @@ namespace CommissionApp.Services.RepositoriesServices
             auditRepository.SaveAuditFile();
         }
 
-        public void ExportCarsToXml(IRepository<Car> carRepository)
+        public void ExportCarsToXml()
         {
             string action = "ExportCarsToXml";
             string itemData = "!";
@@ -422,12 +422,12 @@ namespace CommissionApp.Services.RepositoriesServices
                     )
                 )
             );
-            document.Save("Cars.xml");
+            document.Save("Resources\\Files\\Cars.xml");
             auditRepository.AddEntryToFile();
             auditRepository.SaveAuditFile();
             Console.WriteLine("Data has been successfully exported to Cars.xml.");
         }
-        public void ExportCarsGroupedByCustomersToXml(IRepository<Customer> customerRepository, IRepository<Car> carRepository)
+        public void ExportCarsGroupedByCustomersToXml()
         {
             string action = "ExportCarsGroupedByCustomersToXml";
             string itemData = "!";
@@ -467,12 +467,12 @@ namespace CommissionApp.Services.RepositoriesServices
             );
             auditRepository.AddEntryToFile();
             auditRepository.SaveAuditFile();
-            document.Save("CarsByCustomers.xml");
+            document.Save("Resources\\Files\\CarsByCustomers.xml");
             Console.WriteLine("Data has been successfully exported to CarsByCustomers.xml.");
         }
        
        
-        public void OrderCarsByPrices(IRepository<Car> carRepository)
+        public void OrderCarsByPrices()
         {
             Console.WriteLine("Order data cars by prices SQL ");
             try
@@ -499,7 +499,7 @@ namespace CommissionApp.Services.RepositoriesServices
                 Console.WriteLine($"An error occurred while reading cars from the database: {ex.Message}");
             }
         }
-        public void CarsMoreExpensiveThan(IRepository<Car> carRepository)
+        public void CarsMoreExpensiveThan()
         {
             try
             {
@@ -524,6 +524,22 @@ namespace CommissionApp.Services.RepositoriesServices
                 Console.WriteLine($"An error occurred while reading cars from the database: {ex.Message}");
             }
         }
+        public void CreateXmL()
+        {
+            var records = _csvReader.ProcessCars("Resources\\Files\\Cars.csv");
+            var document = new XDocument();
+            var cars = new XElement("Cars", records
+                .Select(x =>
+                new XElement("Car", 
+                    new XAttribute("CarBrand", x.CarBrand),
+                     new XAttribute("CarModel", x.CarModel),
+                      new XAttribute("CarPrice", x.CarPrice)))); 
+
+            document.Add(cars);
+            document.Save("Resources\\Files\\Cars.xml");
+
+        }
+
     }
 }
 

@@ -1,5 +1,4 @@
 ﻿namespace CommissionApp;
-
 using CommissionApp.UserCommunication;
 public class App : IApp
 {

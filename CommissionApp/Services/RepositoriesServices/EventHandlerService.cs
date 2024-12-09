@@ -1,7 +1,6 @@
 ﻿using CommissionApp.Data.Entities;
 using CommissionApp.Data.Repositories;
 
-
 namespace CommissionApp.Services.RepositoriesServices
 {
     public class EventHandlerService : IEventHandlerService

@@ -4,10 +4,6 @@
     {
         public Customer(string firstname, string lastname, bool email, decimal price)
         {          
-            FirstName=firstname;
-            LastName=lastname;
-            Email = email;
-            Price = price;
         }
         public Customer()
         {

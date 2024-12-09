@@ -8,15 +8,18 @@
   </PropertyGroup>
 
   <ItemGroup>  
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />  
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />  
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />  
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />  
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />  
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" /> 
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />  
+    <PackageReference Include="System.Data.SqlClient" Version="4.9.0" /> 
     <PackageReference Include="System.Text.Json" Version="8.0.3" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Components\DataProviders\CarsProvider\" />
     <Folder Include="Resources\Files\" />
   </ItemGroup>
 

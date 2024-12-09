@@ -2,27 +2,31 @@
 using CommissionApp.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Text.Json;
 
 public class SqlRepository<T> : IRepository<T> where T : class, IEntity, new()
 {
     private readonly DbSet<T> _dbSet;
     private readonly CommissionAppSQLDbContext _commissionAppSQLDbContext;
     private readonly Action<T>? _itemAddedCallback;
-    private int? lastUsedId = 1;
-    //private readonly string path = $"{typeof(T).Name}_save.json";
     private readonly List<T> _items = new();
-         public SqlRepository(CommissionAppSQLDbContext commissionAppSQLDbContext)
+    public SqlRepository(CommissionAppSQLDbContext commissionAppSQLDbContext)
     {
         _commissionAppSQLDbContext = commissionAppSQLDbContext;
         _dbSet = _commissionAppSQLDbContext.Set<T>();
+        _commissionAppSQLDbContext.Database.EnsureCreated();
     }
     public event EventHandler<T>? ItemAdded;
     public event EventHandler<T>? ItemRemoved;
     public event EventHandler<T>? NewAuditEntry;
     public IEnumerable<T> GetAll()
     {
-        return _dbSet.ToList();
+        var items = _dbSet.ToList();
+        int newId = 1;
+        foreach (var item in items)
+        {
+            item.Id = newId++;
+        }
+        return items;
     }
     public T? GetById(int id)
     {
@@ -31,16 +35,8 @@ public class SqlRepository<T> : IRepository<T> where T : class, IEntity, new()
 
     public void Add(T item)
     {
-          if (_items.Count == 0)
-            {
-            item.Id = lastUsedId;
-            lastUsedId++;
-        }
-            else if (_items.Count > 0)
-            {
-                lastUsedId = _items[_items.Count - 1].Id;
-                item.Id = ++lastUsedId;
-            }
+        var maxId = _dbSet.Any() ? _dbSet.Max(x => x.Id) : 0;
+        item.Id = maxId + 1;
         _dbSet.Add(item);
         _itemAddedCallback?.Invoke(item);
         ItemAdded?.Invoke(this, item);
@@ -63,29 +59,7 @@ public class SqlRepository<T> : IRepository<T> where T : class, IEntity, new()
     }
     public void Save()
     {
-    _commissionAppSQLDbContext.SaveChanges();
+        _commissionAppSQLDbContext.SaveChanges();
     }
-    //public void SaveToFile()
-    //    {
-    //   //File.Delete(path);
-    //        var objectsSerialized = JsonSerializer.Serialize<IEnumerable<T>>(_dbSet);
-    //        File.WriteAllText(path, objectsSerialized);
-    //    }
-
-        //public IEnumerable<T> Read()
-        //{
-        //    if (File.Exists(path))
-        //    {
-        //        var objectsSerialized = File.ReadAllText(path);
-        //        var deserializedObjects = JsonSerializer.Deserialize<IEnumerable<T>>(objectsSerialized);
-        //        if (deserializedObjects != null)
-        //        {
-        //            foreach (var item in deserializedObjects)
-        //            {
-        //            _dbSet.Add(item);
-        //            }
-        //        }
-        //    }
-        //    return _dbSet;
-        //}
 }
+    

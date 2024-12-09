@@ -1,22 +1,13 @@
 ﻿using CommissionApp.Audit.AuditJsonFile;
 using CommissionApp.Components.CsvReader;
 using CommissionApp.Data.Entities;
-using CommissionApp.Data.Repositories;
-using CommissionApp.Data;
 using CommissionApp.Services.FilesServices.JsonFile.ExportCsvToJsonFile;
-using CommissionApp.Services.RepositoriesServices;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CommissionApp.Services.FilesServices.JsonFile
 {
-
     public class JsonServices : IJsonServices
     {
-        private readonly CommissionAppSQLDbContext _commissionAppSQLDbContext;
+      
         private readonly ICsvReader _csvReader;
         private readonly IJsonFileService<Customer> _jsonCustomerService;
         private readonly IJsonFileService<Car> _jsonCarService;
@@ -24,7 +15,7 @@ namespace CommissionApp.Services.FilesServices.JsonFile
 
 
         public JsonServices
-            (CommissionAppSQLDbContext commissionAppSQLDbContext,
+            (
                ICsvReader csvReader,
                IJsonFileService<Customer> jsonCustomerService,
                IJsonFileService<Car> jsonCarService,
@@ -35,8 +26,7 @@ namespace CommissionApp.Services.FilesServices.JsonFile
             _jsonCustomerService = jsonCustomerService;
             _jsonCarService = jsonCarService;
             _auditRepository = auditRepository;
-            _commissionAppSQLDbContext = commissionAppSQLDbContext;
-            _commissionAppSQLDbContext.Database.EnsureCreated();
+         
         }
 
         public void ExportToJsonFileSqlRepo()
@@ -44,29 +34,16 @@ namespace CommissionApp.Services.FilesServices.JsonFile
             string action = "Converting Csv To Json file";
             string itemData = "!";
             var auditRepository = new JsonAudit($"{action}", $"{itemData}");
-            string filePath = "Resources\\Files\\Customers.csv";
+            
             var customRecords = _csvReader.ProcessCustomers("Resources\\Files\\Customers.csv");
-            List<Customer> customers = _csvReader.ProcessCustomers(filePath);
+            _jsonCustomerService.SaveToFile(customRecords);
 
-            foreach (var customer in customRecords)
-            {
-                _jsonCustomerService.SaveToFile(_commissionAppSQLDbContext.Customers);          
-            }
-            string file = "Resources\\Files\\Cars.csv";
             var records = _csvReader.ProcessCars("Resources\\Files\\Cars.csv");
+            _jsonCarService.SaveToFile(records);
 
-            List<Car> cars = _csvReader.ProcessCars(file);
-            foreach (var car in records)
-            {
-              
-                _jsonCarService.SaveToFile(_commissionAppSQLDbContext.Cars);
-            }
-            foreach (var car in records)
-            {
-                Console.WriteLine($"{car}");
-            }
             auditRepository.AddEntryToFile();
             auditRepository.SaveAuditFile();
+            Console.WriteLine("Customers and Cars have been successfully exported to JSON.");
         }
         public void LoadDataFromJsonFiles()
         {
