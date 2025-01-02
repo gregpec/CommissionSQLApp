@@ -10,6 +10,4 @@ public class CommissionAppSQLDbContext : DbContext
         }
         public DbSet<Car> Cars { get; set; }
         public DbSet<Customer> Customers { get; set; }
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    { }
 }
