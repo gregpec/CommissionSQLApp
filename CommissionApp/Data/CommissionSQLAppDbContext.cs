@@ -8,6 +8,6 @@ public class CommissionAppSQLDbContext : DbContext
             : base(options)
         {
         }
-        public DbSet<Car> Cars { get; set; }
+        public DbSet<Car> Cars { get; set;  }
         public DbSet<Customer> Customers { get; set; }
 }
