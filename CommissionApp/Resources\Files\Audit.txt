@@ -1,0 +1,2 @@
+[4.08.2025 21:39:52]	CUSTOMER ADDED :
+    [Id: 0, FirstName: fgdgdfgdg, LastName: jkjkjk, Premium: True, Price EUR: 3,00]
