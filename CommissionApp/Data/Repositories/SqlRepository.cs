@@ -13,7 +13,7 @@ public class SqlRepository<T> : IRepository<T> where T : class, IEntity, new()
     {
         _commissionAppSQLDbContext = commissionAppSQLDbContext;
         _dbSet = _commissionAppSQLDbContext.Set<T>();
-        _commissionAppSQLDbContext.Database.EnsureCreated();
+       // _commissionAppSQLDbContext.Database.EnsureCreated();
     }
     public event EventHandler<T>? ItemAdded;
     public event EventHandler<T>? ItemRemoved;
