@@ -30,7 +30,10 @@ class Program
         services.AddSingleton<IRepositoriesService, RepositoriesService>();
         services.AddSingleton<IEventHandlerService, EventHandlerService>();
         services.AddDbContext<CommissionAppSQLDbContext>(options => options
-        .UseSqlServer("Data Source=LAPTOP-8QEUHJMJ\\SQLEXPRESS;Initial Catalog=\"CarsStorage\";Integrated Security=True;Trust Server Certificate=True"));
+        .UseSqlServer("Server=localhost,1433;Database=CarsStorage;User Id=sa;Password=YourStrong!Pass123;TrustServerCertificate=True"));
+
+        //services.AddDbContext<CommissionAppSQLDbContext>(options => options
+        //.UseSqlServer("Data Source=LAPTOP-8QEUHJMJ\\SQLEXPRESS;Initial Catalog=\"CarsStorage\";Integrated Security=True;Trust Server Certificate=True"));
         services.AddTransient<IAudit>(provider =>
         {
             string action = "[item Added!]";
@@ -43,7 +46,30 @@ class Program
         var serviceProvider = services.BuildServiceProvider();
         using var dbContext = serviceProvider.GetRequiredService<CommissionAppSQLDbContext>();
 
-        try
+try
+{
+    // Automatyczna migracja (tworzy bazę, jeśli nie istnieje)
+    dbContext.Database.Migrate();
+
+    if (dbContext.Database.CanConnect())
+    {
+        Console.WriteLine("Connection to SQL Server established successfully!!");
+        Thread.Sleep(2000);
+    }
+    else
+    {
+        Console.WriteLine("Failed to connect to the database");
+        return;
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Failed to connect to SQL Server: {ex.Message}");
+    return;
+}
+        //using var dbContext = serviceProvider.GetRequiredService<CommissionAppSQLDbContext>();
+
+        /*try   
         {
             if (dbContext.Database.CanConnect())
             {
@@ -61,6 +87,8 @@ class Program
             Console.WriteLine($"Failed to connect to SQL Server: {ex.Message}");
             return;
         }
+        */
+
 
         var app = serviceProvider.GetService<IApp>()!;
         app.Run();
