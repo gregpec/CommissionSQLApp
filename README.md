@@ -26,13 +26,15 @@ dotnet tool install --global dotnet-ef
 ### 2. Uruchomienie SQL Server w Dockerze
 
 ```bash
-docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=TwojeHaslo123!" -p 1433:1433 --name sqlserver -d mcr.microsoft.com/mssql/server:2022-latest
+sudo docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=YourStrong!Pass123' \
+   -p 1433:1433 --name sqlserver \
+   -d mcr.microsoft.com/mssql/server:2022-latest
 ```
 
 ### 3. Klonowanie repozytorium i uruchomienie
 
 ```bash
-git clone https://github.com/twoj/repo.git
+git clone https://github.com/gregpec/CommissionSQLApp
 cd repo/CommissionApp
 dotnet build
 dotnet ef database update
