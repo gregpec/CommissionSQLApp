@@ -26,6 +26,15 @@ dotnet tool install --global dotnet-ef
 ### 2. Uruchomienie SQL Server w Dockerze
 
 ```bash
+Instalacja Dockera:
+
+sudo apt update
+sudo apt install docker.io
+sudo systemctl enable docker
+sudo systemctl start docker
+
+SQL server w Dockerze:
+
 sudo docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=YourStrong!Pass123' \
    -p 1433:1433 --name sqlserver \
    -d mcr.microsoft.com/mssql/server:2022-latest
