@@ -54,24 +54,352 @@ dotnet run
 
 ## 🪟 Windows – Instrukcja krok po kroku
 
-### 1. Zainstaluj:
-- Visual Studio 2022/2025 (z .NET i ASP.NET workload)
+# Instalacja i uruchomienie (Windows)
+
+## Wymagania
+
+Przed uruchomieniem projektu zainstaluj:
+
+- Windows 10 lub Windows 11
+- .NET SDK 8.0
+- Visual Studio 2022 (lub nowszy)
 - SQL Server Express 2022
 - SQL Server Management Studio (SSMS)
-- EF Core CLI (jeśli używasz terminala): `dotnet tool install --global dotnet-ef`
-
-### 2. Uruchomienie projektu
-
-- Otwórz `CommissionApp.sln` w Visual Studio
-- Otwórz **Package Manager Console**
-  - Wybierz projekt startowy: `CommissionApp`
-  - Wpisz:
-    ```powershell
-    Update-Database
-    ```
-- Naciśnij `F5` aby uruchomić
 
 ---
+
+## 1. Sklonowanie repozytorium
+
+```powershell
+git clone https://github.com/gregpec/CommissionSQLApp.git
+cd CommissionSQLApp
+```
+
+---
+
+## 2. Sprawdzenie wersji .NET
+
+```powershell
+dotnet --version
+```
+
+Powinna zostać wyświetlona wersja 8.x.
+
+---
+
+## 3. Instalacja Entity Framework Core CLI
+
+Sprawdzenie instalacji:
+
+```powershell
+dotnet ef --version
+```
+
+Jeżeli polecenie nie działa:
+
+```powershell
+dotnet tool install --global dotnet-ef
+```
+
+Aktualizacja:
+
+```powershell
+dotnet tool update --global dotnet-ef
+```
+
+---
+
+## 4. Instalacja SQL Server Express
+
+Zainstaluj:
+
+- SQL Server Express 2022
+- SQL Server Management Studio (SSMS)
+
+---
+
+## 5. Włączenie logowania SQL Server
+
+Uruchom **SQL Server Management Studio**.
+
+Połącz się z serwerem:
+
+```
+.\SQLEXPRESS
+```
+
+Uwierzytelnianie:
+
+```
+Windows Authentication
+```
+
+Następnie:
+
+```
+Server
+→ Properties
+→ Security
+```
+
+Wybierz:
+
+```
+SQL Server and Windows Authentication mode
+```
+
+Kliknij:
+
+```
+OK
+```
+
+---
+
+## 6. Włączenie konta sa
+
+Przejdź do:
+
+```
+Security
+→ Logins
+→ sa
+```
+
+Kliknij:
+
+```
+Properties
+```
+
+### General
+
+Ustaw hasło:
+
+```
+YourStrong!Pass123
+```
+
+### Status
+
+Ustaw:
+
+```
+Permission to connect to database engine
+Grant
+
+Login
+Enabled
+```
+
+Kliknij **OK**.
+
+---
+
+## 7. Włączenie TCP/IP
+
+Uruchom:
+
+```
+SQL Server Configuration Manager
+```
+
+Przejdź do:
+
+```
+SQL Server Network Configuration
+→ Protocols for SQLEXPRESS
+```
+
+Kliknij prawym przyciskiem:
+
+```
+TCP/IP
+```
+
+i wybierz:
+
+```
+Enable
+```
+
+---
+
+## 8. Ustawienie portu 1433
+
+Kliknij dwukrotnie:
+
+```
+TCP/IP
+```
+
+Przejdź do zakładki:
+
+```
+IP Addresses
+```
+
+Przewiń na sam dół do sekcji:
+
+```
+IPAll
+```
+
+Ustaw:
+
+```
+TCP Dynamic Ports
+
+(puste)
+```
+
+```
+TCP Port
+
+1433
+```
+
+Kliknij **OK**.
+
+---
+
+## 9. Restart SQL Server
+
+Przejdź do:
+
+```
+SQL Server Services
+```
+
+Kliknij prawym przyciskiem:
+
+```
+SQL Server (SQLEXPRESS)
+```
+
+i wybierz:
+
+```
+Restart
+```
+
+---
+
+## 10. Sprawdzenie połączenia
+
+Uruchom PowerShell:
+
+```powershell
+Test-NetConnection localhost -Port 1433
+```
+
+Oczekiwany wynik:
+
+```
+TcpTestSucceeded : True
+```
+
+---
+
+## 11. Connection String
+
+Projekt wykorzystuje następujący connection string:
+
+```csharp
+.UseSqlServer(
+    "Server=localhost,1433;Database=CarsStorage;User Id=sa;Password=YourStrong!Pass123;TrustServerCertificate=True");
+```
+
+---
+
+## 12. Utworzenie bazy danych
+
+W katalogu projektu wykonaj:
+
+```powershell
+dotnet ef database update
+```
+
+lub uruchom aplikację – baza zostanie utworzona automatycznie dzięki:
+
+```csharp
+dbContext.Database.Migrate();
+```
+
+---
+
+## 13. Uruchomienie projektu
+
+Visual Studio:
+
+```
+F5
+```
+
+lub terminal:
+
+```powershell
+dotnet build
+dotnet run
+```
+
+---
+
+## Rozwiązywanie problemów
+
+### Login failed for user 'sa'
+
+Sprawdź:
+
+- SQL Server Authentication jest włączone.
+- Konto **sa** jest aktywne.
+- Hasło jest poprawne.
+
+---
+
+### A network-related or instance-specific error occurred
+
+Sprawdź:
+
+- SQL Server jest uruchomiony.
+- TCP/IP jest włączony.
+- Port 1433 został ustawiony.
+- Usługa SQL Server została zrestartowana.
+- Polecenie:
+
+```powershell
+Test-NetConnection localhost -Port 1433
+```
+
+zwraca:
+
+```
+TcpTestSucceeded : True
+```
+
+---
+
+### The certificate chain was issued by an authority that is not trusted
+
+Podczas logowania w SSMS zaznacz opcję:
+
+```
+Trust server certificate
+```
+
+---
+
+# Installation and Setup (Windows)
+
+## Requirements
+
+Install the following software before running the project:
+
+- Windows 10 or Windows 11
+- .NET SDK 8.0
+- Visual Studio 2022 or later
+- SQL Server Express 2022
+- SQL Server Management Studio (SSMS)
 
 ## 📂 Pliki konfiguracyjne (.vscode)
 
