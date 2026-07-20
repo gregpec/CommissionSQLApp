@@ -389,18 +389,6 @@ Trust server certificate
 
 ---
 
-# Installation and Setup (Windows)
-
-## Requirements
-
-Install the following software before running the project:
-
-- Windows 10 or Windows 11
-- .NET SDK 8.0
-- Visual Studio 2022 or later
-- SQL Server Express 2022
-- SQL Server Management Studio (SSMS)
-
 ## 📂 Pliki konfiguracyjne (.vscode)
 
 Jeśli używasz VS Code, dodaj folder `.vscode/` z zawartością:
