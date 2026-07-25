@@ -1,5 +1,6 @@
 ﻿using CommissionApp.Data.Entities;
 using CommissionApp.Data.Repositories;
+using CommissionApp.Helpers;
 
 namespace CommissionApp.Services.RepositoriesServices
 {
@@ -32,7 +33,7 @@ namespace CommissionApp.Services.RepositoriesServices
                 Console.ForegroundColor = ConsoleColor.Green;
                 AddAuditInfo(e, "CUSTOMER ADDED");
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"Customer\n{e}\nadded successfully to data sql repositories  and event inscribed to file: Resources\\\\Files\\\\Audit.txt\n");
+                Console.WriteLine($"Customer\n{e}\nadded successfully to data sql repositories  and event inscribed to file: {FilePaths.AuditTxt} Resources\\\\Files\\\\Audit.txt\n");
                 Console.ResetColor();
             }
 
@@ -41,7 +42,7 @@ namespace CommissionApp.Services.RepositoriesServices
                 TextColoring(ConsoleColor.Red, $"Event: Customer {e.FirstName} removed from repository => {sender?.GetType().Name}!");
                 AddAuditInfo(e, "CUSTOMER REMOVED");
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"Customer\n{e}\nremoved successfully  and event inscribed to file: Resources\\Files\\Audit.txtn\n");
+                Console.WriteLine($"Customer\n{e}\nremoved successfully  and event inscribed to file: Resources\\Files\\Audit.txt\n");
                 Console.ResetColor();
             }
 

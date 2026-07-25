@@ -11,18 +11,20 @@ using CommissionApp.Services.RepositoriesServices;
 using CommissionApp.Services.FilesServices.JsonFile.ExportCsvToJsonFile;
 using CommissionApp.Services.FilesServices.JsonFile;
 using CommissionApp.Components.DataProviders;
+using CommissionApp.Helpers;
+using System.Threading.Tasks;
 
 class Program
 {
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
         var services = new ServiceCollection();
         services.AddSingleton<IApp, App>();
         services.AddSingleton<IAudit, JsonAudit>();
         services.AddSingleton<ICarsProvider, CarsProvider>();
         services.AddSingleton<ICsvReader, CsvReader>();
-        services.AddSingleton<IJsonFileService<Customer>>(new JsonFileService<Customer>("Resources\\Files\\Customers.json"));
-        services.AddSingleton<IJsonFileService<Car>>(new JsonFileService<Car>("Resources\\Files\\Cars.json"));
+        services.AddSingleton<IJsonFileService<Customer>>(new JsonFileService<Customer>(FilePaths.CustomersJson));
+        services.AddSingleton<IJsonFileService<Car>>(new JsonFileService<Car>(FilePaths.CarsJson));
         services.AddSingleton<IRepository<Customer>, SqlRepository<Customer>>();
         services.AddSingleton<IRepository<Car>, SqlRepository<Car>>();
         services.AddSingleton<IUserCommunication, UserCommunication>();
@@ -30,7 +32,7 @@ class Program
         services.AddSingleton<IRepositoriesService, RepositoriesService>();
         services.AddSingleton<IEventHandlerService, EventHandlerService>();
         services.AddDbContext<CommissionAppSQLDbContext>(options => options
-        .UseSqlServer("Server=localhost,1433;Database=CarsStorage;User Id=sa;Password=YourStrong!Pass123;TrustServerCertificate=True"));
+        .UseSqlServer(DatabaseSettings.ConnectionString));
 
         //services.AddDbContext<CommissionAppSQLDbContext>(options => options
         //.UseSqlServer("Data Source=LAPTOP-8QEUHJMJ\\SQLEXPRESS;Initial Catalog=\"CarsStorage\";Integrated Security=True;Trust Server Certificate=True"));
@@ -54,8 +56,9 @@ try
     if (dbContext.Database.CanConnect())
     {
         Console.WriteLine("Connection to SQL Server established successfully!!");
-        Thread.Sleep(2000);
-    }
+       // Thread.Sleep(2000);
+                await Task.Delay(2000);
+            }
     else
     {
         Console.WriteLine("Failed to connect to the database");

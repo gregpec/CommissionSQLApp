@@ -3,6 +3,7 @@ using CommissionApp.Data.Entities;
 using System.Xml.Linq;
 using CommissionApp.Components.CsvReader;
 using CommissionApp.Data.Repositories;
+using CommissionApp.Helpers;
 
 namespace CommissionApp.Services.RepositoriesServices
 {
@@ -233,7 +234,7 @@ namespace CommissionApp.Services.RepositoriesServices
             var auditRepository = new JsonAudit($"{action}", $"{itemData}");
             try
             {
-                var cars = _csvReader.ProcessCars("Resources\\Files\\Cars.csv");
+                var cars = _csvReader.ProcessCars(FilePaths.CarsCsv);
 
                 if (cars == null || !cars.Any())
                 {
@@ -286,7 +287,7 @@ namespace CommissionApp.Services.RepositoriesServices
             var auditRepository = new JsonAudit($"{action}", $"{itemData}");
             try
             {
-                var customers = _csvReader.ProcessCustomers("Resources\\Files\\Customers.csv");
+                var customers = _csvReader.ProcessCustomers(FilePaths.CustomersCsv);
 
                 if (customers == null || !customers.Any())
                 {
@@ -422,7 +423,7 @@ namespace CommissionApp.Services.RepositoriesServices
                     )
                 )
             );
-            document.Save("Resources\\Files\\Cars.xml");
+            document.Save(FilePaths.CarsXml);
             auditRepository.AddEntryToFile();
             auditRepository.SaveAuditFile();
             Console.WriteLine("Data has been successfully exported to Cars.xml.");
@@ -467,7 +468,7 @@ namespace CommissionApp.Services.RepositoriesServices
             );
             auditRepository.AddEntryToFile();
             auditRepository.SaveAuditFile();
-            document.Save("Resources\\Files\\CarsByCustomers.xml");
+            document.Save(FilePaths.CarsByCustomersXml);
             Console.WriteLine("Data has been successfully exported to CarsByCustomers.xml.");
         }
        
@@ -526,7 +527,7 @@ namespace CommissionApp.Services.RepositoriesServices
         }
         public void CreateXmL()
         {
-            var records = _csvReader.ProcessCars("Resources\\Files\\Cars.csv");
+            var records = _csvReader.ProcessCars(FilePaths.CarsCsv);
             var document = new XDocument();
             var cars = new XElement("Cars", records
                 .Select(x =>
@@ -536,7 +537,7 @@ namespace CommissionApp.Services.RepositoriesServices
                       new XAttribute("CarPrice", x.CarPrice)))); 
 
             document.Add(cars);
-            document.Save("Resources\\Files\\Cars.xml");
+            document.Save(FilePaths.CarsXml);
 
         }
 

@@ -2,6 +2,8 @@
 using CommissionApp.Services.FilesServices.JsonFile;
 using CommissionApp.Audit.AuditJsonFile;
 using CommissionApp.Components.DataProviders;
+using System.Threading.Tasks;
+
 
 namespace CommissionApp.UserCommunication
 {
@@ -259,8 +261,15 @@ namespace CommissionApp.UserCommunication
                             _repositoriesService.ExportCarsToXml();                        
                         }
                         break;
+                    case "q":
+                        {
+                            Console.WriteLine("Exiting the program. Goodbye!");
+                        }
+                        break;
                     default:
-                        Console.WriteLine("Invalid input. Please try again.");
+                        Console.WriteLine(" Invalid input. Please try again.");
+                        //await Task.Delay(2000);
+                        Thread.Sleep(2000);
                         break;
                 }
             } while (input != "q");

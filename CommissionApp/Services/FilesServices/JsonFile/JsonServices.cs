@@ -2,6 +2,7 @@
 using CommissionApp.Components.CsvReader;
 using CommissionApp.Data.Entities;
 using CommissionApp.Services.FilesServices.JsonFile.ExportCsvToJsonFile;
+using CommissionApp.Helpers;
 
 namespace CommissionApp.Services.FilesServices.JsonFile
 {
@@ -35,10 +36,10 @@ namespace CommissionApp.Services.FilesServices.JsonFile
             string itemData = "!";
             var auditRepository = new JsonAudit($"{action}", $"{itemData}");
             
-            var customRecords = _csvReader.ProcessCustomers("Resources\\Files\\Customers.csv");
+            var customRecords = _csvReader.ProcessCustomers(FilePaths.CustomersCsv);
             _jsonCustomerService.SaveToFile(customRecords);
 
-            var records = _csvReader.ProcessCars("Resources\\Files\\Cars.csv");
+            var records = _csvReader.ProcessCars(FilePaths.CarsCsv);
             _jsonCarService.SaveToFile(records);
 
             auditRepository.AddEntryToFile();
